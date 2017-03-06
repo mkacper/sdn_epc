@@ -1,0 +1,7 @@
+2017-03-06 22:18:45.335 [info] <0.7.0> Application lager started on node nonode@nohost
+2017-03-06 22:18:45.335 [info] <0.7.0> Application eenum started on node nonode@nohost
+2017-03-06 22:18:45.335 [info] <0.7.0> Application of_protocol started on node nonode@nohost
+2017-03-06 22:18:45.336 [info] <0.7.0> Application of_msg_lib started on node nonode@nohost
+2017-03-06 22:18:45.347 [info] <0.7.0> Application of_driver started on node nonode@nohost
+2017-03-06 22:19:06.993 [info] <0.7.0> Application logger started on node nonode@nohost
+2017-03-06 22:20:26.651 [info] <0.7.0> Application ofs_handler started on node nonode@nohost

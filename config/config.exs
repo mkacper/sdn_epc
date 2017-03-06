@@ -28,3 +28,19 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env}.exs"
+
+config :of_driver,
+  listen_ip: {0,0,0,0},
+	listen_port: 6653,
+	listen_opts: [:binary, {:packet, :raw}, {:active, false}, {:reuseaddr, true}],
+  of_compatible_versions: [4],
+  callback_module: :ofs_handler_driver,
+  enable_ping: false,
+  ping_timeout: 1000,
+  ping_idle: 5000,
+  multipart_timeout: 30000       # IMPLEMENT
+
+config :ofs_handler,
+    callback_module: SdnEpc.OfshCalls,
+    peer: "localhost",
+    callback_opts: []

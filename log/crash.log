@@ -1050,3 +1050,9 @@
      Reason:     {function_clause,[{ofs_handler_driver,terminate,[driver_closed_connection,undefined],[{file,"src/ofs_handler_driver.erl"},{line,90}]},{of_driver_connection,close_of_connection,2,[{file,"src/of_driver_connection.erl"},{line,481}]},{of_driver_connection,terminate,2,[{file,"src/of_driver_connection.erl"},{line,180}]},{gen_server,try_terminate,3,[{file,"gen_server.erl"},{line,643}]},{gen_server,terminate,7,[{file,"gen_server.erl"},{line,809}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,240}]}]}
      Offender:   [{pid,<0.182.0>},{id,conn_id},{mfargs,{of_driver_connection,start_link,undefined}},{restart_type,temporary},{shutdown,1000},{child_type,worker}]
 
+2017-03-08 15:14:14 =SUPERVISOR REPORT====
+     Supervisor: {local,'Elixir.Logger.Supervisor'}
+     Context:    child_terminated
+     Reason:     normal
+     Offender:   [{pid,<0.124.0>},{id,'Elixir.Logger.ErrorHandler'},{mfargs,{'Elixir.Logger.Watcher',watcher,[error_logger,'Elixir.Logger.ErrorHandler',{true,false,500}]}},{restart_type,permanent},{shutdown,5000},{child_type,worker}]
+

@@ -9,7 +9,8 @@ defmodule SdnEpc.OfshCalls do
   end
 
   def handle_message(msg = {:packet_in, xid, body}, datapatch_id)  do
-    Logger.info "Packet in message received #{msg}" 
+    Logger.info "Packet in message received" 
+    IO.inspect msg
     :ok
   end
 end

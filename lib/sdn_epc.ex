@@ -1,18 +1,7 @@
 defmodule SdnEpc do
-  @moduledoc """
-  Documentation for SdnEpc.
-  """
+  use Application
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> SdnEpc.hello
-      :world
-
-  """
-  def hello do
-    :world
-  end
+  def start(_type, _args) do
+    SdnEpc.Supervisor.start_link
+  end 
 end

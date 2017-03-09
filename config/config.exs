@@ -29,6 +29,12 @@ use Mix.Config
 #
 #     import_config "#{Mix.env}.exs"
 
+config :sdn_epc,
+  channel_id: "1",
+  controller_ip: "192.168.56.101",
+  controller_port: 6653,
+  channel_version: 4
+
 config :of_driver,
   listen_ip: {0,0,0,0},
 	listen_port: 6653,

@@ -1,4 +1,4 @@
-defmodule SdnEpc.OfMessage do
+defmodule SdnEpc.OfpmRecords do
   require Record
 
   ofm_path = Application.get_env :sdn_epc, :ofm_record

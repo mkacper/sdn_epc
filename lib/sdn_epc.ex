@@ -3,5 +3,5 @@ defmodule SdnEpc do
 
   def start(_type, _args) do
     SdnEpc.Supervisor.start_link
-  end 
+  end
 end

@@ -4,7 +4,7 @@ defmodule SdnEpc.Forwarder do
   # Client API
 
   def start_link do
-    res = GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
+    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
   def subscribe_messages_from_switch(datapatch_id, type) do
@@ -12,10 +12,10 @@ defmodule SdnEpc.Forwarder do
     {:handle_switch_msg, datapatch_id: datapatch_id, type: type}
   end
 
-  def open_ofp_channel(switch_id, ip, port, version) do
+  def open_ofp_channel(sup, switch_id, ip, port, version) do
     GenServer.call __MODULE__,
-    {:open_of_channel, %{switch_id: switch_id, ip: ip,
-                         port: port,version: version}}
+    {:open_of_channel, %{sup: sup, switch_id: switch_id, ip: ip,
+                         port: port, version: version}}
   end
 
   def send_msg_to_switch(datapatch_id, msg) do
@@ -35,12 +35,8 @@ defmodule SdnEpc.Forwarder do
   end
 
   def handle_call({:open_of_channel, args}, _from, state) do
-    ip_tuple = args[:ip]
-    |> String.split(".")
-    |> Stream.map(&(String.to_integer(&1)))
-    |> Enum.to_list
-    |> List.to_tuple
-    {:ok, conn_pid} = :ofp_channel.open :ofp_channel_sup,
+    {:ok, ip_tuple} = :inet.parse_address args[:ip]
+    {:ok, _conn_pid} = :ofp_channel.open args[:sup],
       "ofp_channel_" <> args[:switch_id],
       {:remote_peer, ip_tuple, args[:port], :tcp},
       controlling_process: __MODULE__, version: args[:version]
@@ -49,7 +45,7 @@ defmodule SdnEpc.Forwarder do
 
   def handle_cast({:handle_switch_msg, datapatch_id: datapatch_id,
                   type: type}, state) do
-    :ofs_handler.subscribe datapatch_id, SdnEpc.OfshCalls, type 
+    :ofs_handler.subscribe datapatch_id, SdnEpc.OfshCalls, type
     {:noreply, state}
   end
 end

@@ -20,8 +20,7 @@ defmodule SdnEpc.OfshCalls do
   # Helper functions
 
   defp start_ofp_channel_sup do
-    ofpc_sup_spec = Supervisor.Spec.supervisor(:ofp_channel_sup, [1])
-    Supervisor.start_child SdnEpc.Supervisor, ofpc_sup_spec
+    Supervisor.start_child SdnEpc.OfpcsSup, [1]
   end
 
   defp open_ofp_channel(ofpc_sup) do

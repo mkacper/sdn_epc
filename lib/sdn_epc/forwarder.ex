@@ -35,10 +35,9 @@ defmodule SdnEpc.Forwarder do
   end
 
   def handle_call({:open_of_channel, args}, _from, state) do
-    {:ok, ip_tuple} = :inet.parse_address args[:ip]
     {:ok, _conn_pid} = :ofp_channel.open args[:sup],
       "ofp_channel_" <> args[:switch_id],
-      {:remote_peer, ip_tuple, args[:port], :tcp},
+      {:remote_peer, args[:ip], args[:port], :tcp},
       controlling_process: __MODULE__, version: args[:version]
     {:reply, :ok, state}
   end

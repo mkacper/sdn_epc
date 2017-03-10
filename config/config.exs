@@ -31,7 +31,7 @@ use Mix.Config
 
 config :sdn_epc,
   channel_id: "1",
-  controller_ip: '192.168.56.101',
+  controller_ip: {192,168,56,101},
   controller_port: 6653,
   channel_version: 4
 

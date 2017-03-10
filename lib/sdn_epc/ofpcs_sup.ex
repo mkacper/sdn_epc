@@ -1,4 +1,4 @@
-defmodule SdnEpc.Supervisor do
+defmodule SdnEpc.OfpcsSup do
   use Supervisor
 
   def start_link do
@@ -7,9 +7,8 @@ defmodule SdnEpc.Supervisor do
 
   def init([]) do
     children = [
-      worker(SdnEpc.Forwarder, []),
-      supervisor(SdnEpc.OfpcsSup, [])
+      supervisor(:ofp_channel_sup, [], restart: :transient)
     ]
-    supervise(children, strategy: :one_for_one)
+    supervise(children, strategy: :simple_one_for_one)
   end
 end

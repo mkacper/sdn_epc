@@ -47,6 +47,6 @@ config :of_driver,
   multipart_timeout: 30000       # IMPLEMENT
 
 config :ofs_handler,
-    callback_module: SdnEpc.OfshCalls,
+    callback_module: SdnEpc.OfshCall,
     peer: "localhost",
     callback_opts: []

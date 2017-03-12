@@ -9,7 +9,7 @@ defmodule SdnEpc.Forwarder do
 
   def subscribe_messages_from_switch(datapatch_id, type) do
     GenServer.cast __MODULE__,
-    {:handle_switch_msg, datapatch_id: datapatch_id, type: type}
+    {:handle_switch_msg, datapatch_id, type}
   end
 
   def open_ofp_channel(sup, switch_id, ip, port, version) do
@@ -36,15 +36,13 @@ defmodule SdnEpc.Forwarder do
 
   def handle_call({:open_of_channel, args}, _from, state) do
     {:ok, _conn_pid} = :ofp_channel.open args[:sup],
-      "ofp_channel_" <> args[:switch_id],
-      {:remote_peer, args[:ip], args[:port], :tcp},
+      args[:switch_id], {:remote_peer, args[:ip], args[:port], :tcp},
       controlling_process: __MODULE__, version: args[:version]
     {:reply, :ok, state}
   end
 
-  def handle_cast({:handle_switch_msg, datapatch_id: datapatch_id,
-                  type: type}, state) do
-    :ofs_handler.subscribe datapatch_id, SdnEpc.OfshCalls, type
+  def handle_cast({:handle_switch_msg, datapatch_id, type}, state) do
+    :ofs_handler.subscribe datapatch_id, SdnEpc.OfshCall, type
     {:noreply, state}
   end
 end

@@ -1,4 +1,5 @@
 defmodule SdnEpc.Forwarder do
+  require Logger
   use GenServer
 
   # Client API
@@ -20,12 +21,12 @@ defmodule SdnEpc.Forwarder do
 
   def send_msg_to_switch(datapatch_id, msg) do
     GenServer.cast __MODULE__,
-    {:send_msg_to_switch, datapatch_id: datapatch_id, msg: msg}
+    {:send_msg_to_switch, datapatch_id, msg}
   end
 
   def send_msg_to_controller(switch_id, msg) do
     GenServer.cast __MODULE__,
-    {:send_msg_to_controller, switch_id: switch_id, msg: msg}
+    {:send_msg_to_controller, switch_id, msg}
   end
 
   # Server Callbacks
@@ -45,6 +46,13 @@ defmodule SdnEpc.Forwarder do
   def handle_cast({:handle_switch_msg, datapatch_id: datapatch_id,
                   type: type}, state) do
     :ofs_handler.subscribe datapatch_id, SdnEpc.OfshCalls, type
+    {:noreply, state}
+  end
+  def handle_cast({:send_msg_to_controller, switch_id,
+                   msg = {:packet_in, _, _}}, state) do
+    msg_converted = SdnEpc.Converter.ofp_packet_in msg
+    :ofp_channel.send switch_id, msg_converted
+    Logger.info "Packet in message send to controller"
     {:noreply, state}
   end
 end

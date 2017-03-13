@@ -13,6 +13,7 @@ defmodule SdnEpc.OfshCalls do
 
   def handle_message(msg = {:packet_in, _xid, _body}, _datapatch_id)  do
     Logger.info "Packet in message received"
+    SdnEpc.Forwarder.send_msg_to_controller(1, msg)
     IO.inspect msg
     :ok
   end
@@ -27,6 +28,6 @@ defmodule SdnEpc.OfshCalls do
     chan_conf = Application.get_all_env :sdn_epc
     SdnEpc.Forwarder.open_ofp_channel ofpc_sup, chan_conf[:channel_id],
       chan_conf[:controller_ip], chan_conf[:controller_port],
-      chan_conf[:channel_version]
+      chan_conf[:ofp_version]
   end
 end

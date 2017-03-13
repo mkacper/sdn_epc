@@ -15,7 +15,9 @@ defmodule SdnEpc.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [extra_applications: [:logger]]
+    [extra_applications: [:logger, :of_driver, :ofs_handler, :of_protocol,
+                         :of_msg_lib],
+    mod: {SdnEpc, []}]
   end
 
   # Dependencies can be Hex packages:
@@ -28,6 +30,9 @@ defmodule SdnEpc.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [
+      {:ofs_handler,
+       git: "https://github.com/FlowForwarding/ofs_handler", branch: "master"},
+    ]
   end
 end

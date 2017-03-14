@@ -8,9 +8,12 @@ defmodule SdnEpc.Forwarder do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
-  def subscribe_messages_from_switch(datapatch_id, type) do
+  def save_datapath_id(datapath_id) do
+    GenServer.cast(__MODULE__, {:save_datapath_id, datapath_id})
+  end
+  def subscribe_messages_from_switch(datapath_id, type) do
     GenServer.cast(__MODULE__,
-      {:handle_switch_msg, datapatch_id: datapatch_id, type: type})
+      {:subscribe_switch_msg, datapath_id: datapath_id, type: type})
   end
 
   def open_ofp_channel(sup, switch_id, ip, port, version) do
@@ -19,9 +22,9 @@ defmodule SdnEpc.Forwarder do
                          port: port, version: version}})
   end
 
-  def send_msg_to_switch(datapatch_id, msg) do
+  def send_msg_to_switch(datapath_id, msg) do
     GenServer.cast(__MODULE__,
-      {:send_msg_to_switch, datapatch_id, msg})
+      {:send_msg_to_switch, datapath_id, msg})
   end
 
   def send_msg_to_controller(switch_id, msg) do
@@ -43,9 +46,12 @@ defmodule SdnEpc.Forwarder do
     {:reply, :ok, state}
   end
 
-  def handle_cast({:handle_switch_msg, datapatch_id: datapatch_id,
+  def handle_cast({:save_datapath_id, datapath_id}, _state) do
+    {:noreply, %{datapath_id: datapath_id}}
+  end
+  def handle_cast({:subscribe_switch_msg, datapath_id: datapath_id,
                   type: type}, state) do
-    :ofs_handler.subscribe(datapatch_id, SdnEpc.OfshCalls, type)
+    :ofs_handler.subscribe(datapath_id, SdnEpc.OfshCalls, type)
     {:noreply, state}
   end
   def handle_cast({:send_msg_to_controller, switch_id,
@@ -70,8 +76,9 @@ defmodule SdnEpc.Forwarder do
     {:noreply, state}
   end
 
-  def handle_info({:ofp_message, _from, msg}, state) do
-    :ofs_handler.send('00:00:00:00:00:00:00:01', msg)
+  def handle_info({:ofp_message, _from, msg},
+    state = %{datapath_id: datapath_id}) do
+    :ofs_handler.send(datapath_id, msg)
     Logger.info("Message send to switch")
     {:noreply, state}
   end

@@ -14,8 +14,7 @@ defmodule SdnEpc.Converter do
     field_rec =
       SdnEpc.OfpmRecord.ofp_field(
         name: :in_port,
-        value: value
-        )
+        value: value)
     match_rec =
       SdnEpc.OfpmRecord.ofp_match(
         fields: [

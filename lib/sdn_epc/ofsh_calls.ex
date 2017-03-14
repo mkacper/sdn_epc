@@ -4,16 +4,17 @@ defmodule SdnEpc.OfshCalls do
 
   # :ofs_handler callbacks
 
-  def init(_mode, _ip, datapatch_id, _features, _version, _connection, _opts) do
+  def init(_mode, _ip, datapath_id, _features, _version, _connection, _opts) do
     {:ok, ofpc_sup} = start_ofp_channel_sup()
     open_ofp_channel(ofpc_sup)
-    SdnEpc.Forwarder.subscribe_messages_from_switch(datapatch_id, :packet_in)
-    SdnEpc.Forwarder.subscribe_messages_from_switch(datapatch_id, :features_reply)
-    SdnEpc.Forwarder.subscribe_messages_from_switch(datapatch_id, :port_desc_reply)
-    {:ok, datapatch_id}
+    SdnEpc.Forwarder.save_datapath_id(datapath_id)
+    SdnEpc.Forwarder.subscribe_messages_from_switch(datapath_id, :packet_in)
+    SdnEpc.Forwarder.subscribe_messages_from_switch(datapath_id, :features_reply)
+    SdnEpc.Forwarder.subscribe_messages_from_switch(datapath_id, :port_desc_reply)
+    {:ok, datapath_id}
   end
 
-  def handle_message(msg, _datapatch_id)  do
+  def handle_message(msg, _datapath_id)  do
     Logger.info("Message received from switch")
     SdnEpc.Forwarder.send_msg_to_controller(1, msg)
   end

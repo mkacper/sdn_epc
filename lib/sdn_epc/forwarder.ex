@@ -51,7 +51,7 @@ defmodule SdnEpc.Forwarder do
   end
   def handle_cast({:subscribe_switch_msg, datapath_id: datapath_id,
                   types: types}, state) do
-    Enum.map(types,
+    Enum.each(types,
       &(:ofs_handler.subscribe(datapath_id, SdnEpc.OfshCalls, &1)))
     {:noreply, state}
   end

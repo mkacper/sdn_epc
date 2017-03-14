@@ -55,4 +55,27 @@ defmodule SdnEpc.Forwarder do
     Logger.info("Packet in message send to controller")
     {:noreply, state}
   end
+  def handle_cast({:send_msg_to_controller, switch_id,
+                   msg = {:features_reply, _, _}}, state) do
+    msg_converted = SdnEpc.Converter.ofp_features_reply(msg)
+    :ofp_channel.send(switch_id, msg_converted)
+    Logger.info("Features reply send to controller")
+    {:noreply, state}
+  end
+  def handle_cast({:send_msg_to_controller, switch_id,
+                   msg = {:port_desc_reply, _, _}}, state) do
+    msg_converted = SdnEpc.Converter.ofp_port_desc_reply(msg)
+    :ofp_channel.send(switch_id, msg_converted)
+    Logger.info("Port desc reply send to controller")
+    {:noreply, state}
+  end
+
+  def handle_info({:ofp_message, _from, msg}, state) do
+    :ofs_handler.send('00:00:00:00:00:00:00:01', msg)
+    Logger.info("Message send to switch")
+    {:noreply, state}
+  end
+  def handle_info(_, state) do
+    {:noreply, state} 
+  end
 end

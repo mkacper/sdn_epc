@@ -35,7 +35,7 @@ config :sdn_epc,
   controller_ip: {192,168,56,101},
   controller_port: 6653,
   ofm_record: "deps/of_protocol/include/of_protocol.hrl",
-  ofpi_record: "deps/of_protocol/include/ofp_v4.hrl"
+  ofmb_record: "deps/of_protocol/include/ofp_v4.hrl"
 
 config :of_driver,
   listen_ip: {0,0,0,0},

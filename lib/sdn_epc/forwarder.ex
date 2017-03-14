@@ -11,9 +11,9 @@ defmodule SdnEpc.Forwarder do
   def save_datapath_id(datapath_id) do
     GenServer.cast(__MODULE__, {:save_datapath_id, datapath_id})
   end
-  def subscribe_messages_from_switch(datapath_id, type) do
+  def subscribe_messages_from_switch(datapath_id, types) do
     GenServer.cast(__MODULE__,
-      {:subscribe_switch_msg, datapath_id: datapath_id, type: type})
+      {:subscribe_switch_msg, datapath_id: datapath_id, types: types})
   end
 
   def open_ofp_channel(sup, switch_id, ip, port, version) do
@@ -50,39 +50,25 @@ defmodule SdnEpc.Forwarder do
     {:noreply, %{datapath_id: datapath_id}}
   end
   def handle_cast({:subscribe_switch_msg, datapath_id: datapath_id,
-                  type: type}, state) do
-    :ofs_handler.subscribe(datapath_id, SdnEpc.OfshCalls, type)
+                  types: types}, state) do
+    Enum.map(types,
+      &(:ofs_handler.subscribe(datapath_id, SdnEpc.OfshCalls, &1)))
     {:noreply, state}
   end
-  def handle_cast({:send_msg_to_controller, switch_id,
-                   msg = {:packet_in, _, _}}, state) do
-    msg_converted = SdnEpc.Converter.ofp_packet_in(msg)
+  def handle_cast({:send_msg_to_controller, switch_id, msg}, state) do
+    msg_converted = SdnEpc.Converter.convert(msg)
     :ofp_channel.send(switch_id, msg_converted)
-    Logger.info("Packet in message send to controller")
-    {:noreply, state}
-  end
-  def handle_cast({:send_msg_to_controller, switch_id,
-                   msg = {:features_reply, _, _}}, state) do
-    msg_converted = SdnEpc.Converter.ofp_features_reply(msg)
-    :ofp_channel.send(switch_id, msg_converted)
-    Logger.info("Features reply send to controller")
-    {:noreply, state}
-  end
-  def handle_cast({:send_msg_to_controller, switch_id,
-                   msg = {:port_desc_reply, _, _}}, state) do
-    msg_converted = SdnEpc.Converter.ofp_port_desc_reply(msg)
-    :ofp_channel.send(switch_id, msg_converted)
-    Logger.info("Port desc reply send to controller")
+    Logger.debug("Message send to controller")
     {:noreply, state}
   end
 
   def handle_info({:ofp_message, _from, msg},
     state = %{datapath_id: datapath_id}) do
     :ofs_handler.send(datapath_id, msg)
-    Logger.info("Message send to switch")
+    Logger.debug("Message send to switch")
     {:noreply, state}
   end
   def handle_info(_, state) do
-    {:noreply, state} 
+    {:noreply, state}
   end
 end

@@ -34,6 +34,7 @@ config :sdn_epc,
   channel_id: "1",
   controller_ip: {192,168,56,101},
   controller_port: 6653,
+  switch_id: 1,
   ofm_record: "deps/of_protocol/include/of_protocol.hrl",
   ofmb_record: "deps/of_protocol/include/ofp_v4.hrl"
 
@@ -52,3 +53,5 @@ config :ofs_handler,
     callback_module: SdnEpc.OfshCalls,
     peer: "localhost",
     callback_opts: []
+
+config :logger, level: :debug

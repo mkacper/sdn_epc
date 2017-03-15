@@ -5,24 +5,22 @@ defmodule SdnEpc.Converter do
 
   def convert({:packet_in, xid, body}) do
     packet_in_rec = ofp_packet_in(body)
-    SdnEpc.OfpmRecord.ofp_message(
-      version: @ofp_version,
-      xid: xid,
-      body: packet_in_rec)
+    build_ofp_msg(xid, packet_in_rec)
   end
   def convert({:features_reply, xid, body}) do
     features_reply_rec = ofp_features_reply(body)
-    SdnEpc.OfpmRecord.ofp_message(
-      version: @ofp_version,
-      xid: xid,
-      body: features_reply_rec)
+    build_ofp_msg(xid, features_reply_rec)
   end
   def convert({:port_desc_reply, xid, body}) do
     port_desc_reply_rec = ofp_port_desc_reply(body)
+    build_ofp_msg(xid, port_desc_reply_rec)
+  end
+
+  defp build_ofp_msg(xid, record) do
     SdnEpc.OfpmRecord.ofp_message(
       version: @ofp_version,
       xid: xid,
-      body: port_desc_reply_rec)
+      body: record)
   end
 
   defp ofp_packet_in([
@@ -30,18 +28,12 @@ defmodule SdnEpc.Converter do
     reason: reason,
     table_id: table_id,
     cookie: cookie,
-    match: [in_port: value],
+    match: match,
     data: data
   ]) do
-    field_rec =
-      SdnEpc.OfpmRecord.ofp_field(
-        name: :in_port,
-        value: value)
     match_rec =
       SdnEpc.OfpmRecord.ofp_match(
-        fields: [
-          field_rec
-        ])
+        fields: Enum.map(match, &(ofp_field(&1))))
     SdnEpc.OfpmRecord.ofp_packet_in(
       buffer_id: buffer_id,
       total_len: byte_size(data),
@@ -50,6 +42,10 @@ defmodule SdnEpc.Converter do
       cookie: cookie,
       match: match_rec,
       data: data)
+  end
+
+  defp ofp_field({name, value}) do
+    SdnEpc.OfpmRecord.ofp_field(name: name, value: value)
   end
 
   defp ofp_features_reply([

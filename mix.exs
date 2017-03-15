@@ -32,7 +32,7 @@ defmodule SdnEpc.Mixfile do
   defp deps do
     [
       {:ofs_handler,
-       git: "https://github.com/FlowForwarding/ofs_handler", branch: "master"},
+       git: "https://github.com/FlowForwarding/ofs_handler", branch: "master"}
     ]
   end
 end

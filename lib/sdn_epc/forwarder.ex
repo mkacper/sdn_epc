@@ -1,4 +1,5 @@
 defmodule SdnEpc.Forwarder do
+  require Logger
   use GenServer
 
   # Client API
@@ -7,25 +8,24 @@ defmodule SdnEpc.Forwarder do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
-  def subscribe_messages_from_switch(datapatch_id, type) do
-    GenServer.cast __MODULE__,
-      {:handle_switch_msg, datapatch_id, type}
+  def save_datapath_id(datapath_id) do
+    GenServer.cast(__MODULE__, {:save_datapath_id, datapath_id})
+  end
+
+  def subscribe_messages_from_switch(datapath_id, types) do
+    GenServer.cast(__MODULE__,
+      {:subscribe_switch_msg, datapath_id: datapath_id, types: types})
   end
 
   def open_ofp_channel(sup, switch_id, ip, port, version) do
-    GenServer.call __MODULE__,
+    GenServer.call(__MODULE__,
       {:open_of_channel, %{sup: sup, switch_id: switch_id, ip: ip,
-                         port: port, version: version}}
-  end
-
-  def send_msg_to_switch(datapatch_id, msg) do
-    GenServer.cast __MODULE__,
-      {:send_msg_to_switch, datapatch_id: datapatch_id, msg: msg}
+                         port: port, version: version}})
   end
 
   def send_msg_to_controller(switch_id, msg) do
-    GenServer.cast __MODULE__,
-    {:send_msg_to_controller, switch_id: switch_id, msg: msg}
+    GenServer.cast(__MODULE__,
+      {:send_msg_to_controller, switch_id, msg})
   end
 
   # Server Callbacks
@@ -35,14 +35,35 @@ defmodule SdnEpc.Forwarder do
   end
 
   def handle_call({:open_of_channel, args}, _from, state) do
-    {:ok, _conn_pid} = :ofp_channel.open args[:sup],
+    {:ok, _conn_pid} = :ofp_channel.open(args[:sup],
       args[:switch_id], {:remote_peer, args[:ip], args[:port], :tcp},
-      controlling_process: __MODULE__, version: args[:version]
+      controlling_process: __MODULE__, version: args[:version])
     {:reply, :ok, state}
   end
 
-  def handle_cast({:handle_switch_msg, datapatch_id, type}, state) do
-    :ofs_handler.subscribe datapatch_id, SdnEpc.OfshCall, type
+  def handle_cast({:save_datapath_id, datapath_id}, _state) do
+    {:noreply, %{datapath_id: datapath_id}}
+  end
+  def handle_cast({:subscribe_switch_msg, datapath_id: datapath_id,
+                  types: types}, state) do
+    Enum.each(types,
+      &(:ofs_handler.subscribe(datapath_id, SdnEpc.OfshCall, &1)))
+    {:noreply, state}
+  end
+  def handle_cast({:send_msg_to_controller, switch_id, msg}, state) do
+    msg_converted = SdnEpc.Converter.convert(msg)
+    :ofp_channel.send(switch_id, msg_converted)
+    Logger.debug("Message send to controller")
+    {:noreply, state}
+  end
+
+  def handle_info({:ofp_message, _from, msg},
+    state = %{datapath_id: datapath_id}) do
+    :ofs_handler.send(datapath_id, msg)
+    Logger.debug("Message send to switch")
+    {:noreply, state}
+  end
+  def handle_info(_, state) do
     {:noreply, state}
   end
 end

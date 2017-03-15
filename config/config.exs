@@ -30,10 +30,13 @@ use Mix.Config
 #     import_config "#{Mix.env}.exs"
 
 config :sdn_epc,
+  ofp_version: 4,
   channel_id: "1",
   controller_ip: {192,168,56,101},
   controller_port: 6653,
-  channel_version: 4
+  switch_id: 1,
+  ofm_record: "deps/of_protocol/include/of_protocol.hrl",
+  ofmb_record: "deps/of_protocol/include/ofp_v4.hrl"
 
 config :of_driver,
   listen_ip: {0,0,0,0},
@@ -50,3 +53,5 @@ config :ofs_handler,
     callback_module: SdnEpc.OfshCall,
     peer: "localhost",
     callback_opts: []
+
+config :logger, level: :debug

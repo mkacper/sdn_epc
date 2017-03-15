@@ -11,6 +11,7 @@ defmodule SdnEpc.Forwarder do
   def save_datapath_id(datapath_id) do
     GenServer.cast(__MODULE__, {:save_datapath_id, datapath_id})
   end
+
   def subscribe_messages_from_switch(datapath_id, types) do
     GenServer.cast(__MODULE__,
       {:subscribe_switch_msg, datapath_id: datapath_id, types: types})
@@ -20,11 +21,6 @@ defmodule SdnEpc.Forwarder do
     GenServer.call(__MODULE__,
       {:open_of_channel, %{sup: sup, switch_id: switch_id, ip: ip,
                          port: port, version: version}})
-  end
-
-  def send_msg_to_switch(datapath_id, msg) do
-    GenServer.cast(__MODULE__,
-      {:send_msg_to_switch, datapath_id, msg})
   end
 
   def send_msg_to_controller(switch_id, msg) do
@@ -40,8 +36,7 @@ defmodule SdnEpc.Forwarder do
 
   def handle_call({:open_of_channel, args}, _from, state) do
     {:ok, _conn_pid} = :ofp_channel.open(args[:sup],
-      "ofp_channel_" <> args[:switch_id],
-      {:remote_peer, args[:ip], args[:port], :tcp},
+      args[:switch_id], {:remote_peer, args[:ip], args[:port], :tcp},
       controlling_process: __MODULE__, version: args[:version])
     {:reply, :ok, state}
   end
@@ -52,7 +47,7 @@ defmodule SdnEpc.Forwarder do
   def handle_cast({:subscribe_switch_msg, datapath_id: datapath_id,
                   types: types}, state) do
     Enum.each(types,
-      &(:ofs_handler.subscribe(datapath_id, SdnEpc.OfshCalls, &1)))
+      &(:ofs_handler.subscribe(datapath_id, SdnEpc.OfshCall, &1)))
     {:noreply, state}
   end
   def handle_cast({:send_msg_to_controller, switch_id, msg}, state) do

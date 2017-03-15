@@ -1,4 +1,4 @@
-defmodule SdnEpc.OfshCalls do
+defmodule SdnEpc.OfshCall do
 
   require Logger
 

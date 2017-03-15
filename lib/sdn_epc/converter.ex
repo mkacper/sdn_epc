@@ -3,24 +3,21 @@ defmodule SdnEpc.Converter do
 
   @ofp_version Application.get_env(:sdn_epc, :ofp_version)
 
-  def convert({:packet_in, xid, body}) do
-    packet_in_rec = ofp_packet_in(body)
-    build_ofp_msg(xid, packet_in_rec)
-  end
-  def convert({:features_reply, xid, body}) do
-    features_reply_rec = ofp_features_reply(body)
-    build_ofp_msg(xid, features_reply_rec)
-  end
-  def convert({:port_desc_reply, xid, body}) do
-    port_desc_reply_rec = ofp_port_desc_reply(body)
-    build_ofp_msg(xid, port_desc_reply_rec)
-  end
-
-  defp build_ofp_msg(xid, record) do
+  def convert(msg) do
     SdnEpc.OfpmRecord.ofp_message(
       version: @ofp_version,
-      xid: xid,
-      body: record)
+      xid: elem(msg, 1),
+      body: build_body(msg))
+  end
+
+  defp build_body({:packet_in, _xid, body}) do
+    ofp_packet_in(body)
+  end
+  defp build_body({:features_reply, _xid, body}) do
+    ofp_features_reply(body)
+  end
+  defp build_body({:port_desc_reply, _xid, body}) do
+    ofp_port_desc_reply(body)
   end
 
   defp ofp_packet_in([

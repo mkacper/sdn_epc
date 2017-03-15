@@ -1,6 +1,12 @@
 defmodule SdnEpc.Supervisor do
   use Supervisor
+  @moduledoc """
+  The main application's supervisor module.
+  """
 
+  @doc """
+  Starts main supervisor.
+  """
   def start_link() do
     Supervisor.start_link(__MODULE__, [], name: __MODULE__)
   end

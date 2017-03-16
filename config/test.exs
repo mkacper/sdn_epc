@@ -7,7 +7,8 @@ config :sdn_epc,
   controller_port: 6653,
   switch_id: 1,
   ofm_record: "deps/of_protocol/include/of_protocol.hrl",
-  ofmb_record: "deps/of_protocol/include/ofp_v4.hrl"
+  ofmb_record: "deps/of_protocol/include/ofp_v4.hrl",
+  ofs_handler: SdnEpc.OfsHandler.InMemory
 
 config :of_driver,
   listen_ip: {0,0,0,0},

@@ -9,6 +9,9 @@ defmodule SdnEpc.Mixfile do
      elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     test_coverage: [tool: ExCoveralls],
+     preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test,
+                         "coveralls.post": :test, "coveralls.html": :test],
      deps: deps()]
   end
 
@@ -35,7 +38,8 @@ defmodule SdnEpc.Mixfile do
     [
       {:ofs_handler,
        git: "https://github.com/FlowForwarding/ofs_handler", branch: "master"},
-      {:ex_doc, "~> 0.15.0"}
+      {:ex_doc, "~> 0.15.0"},
+      {:excoveralls, "~> 0.6", only: :test}
     ]
   end
 end

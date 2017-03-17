@@ -3,7 +3,19 @@ defmodule SdnEpc.ForwarderTest do
   import SdnEpc.Forwarder
 
   test "save datapath id" do
-    assert save_datapath_id('00:00:00:00:00:00:01') == :ok
+    # GIVEN
+    datapath_id = '00:00:00:00:00:00:00:01'
+    port = Application.get_env(:sdn_epc, :ofs_handler_test_port)
+    {:ok, socket} = :gen_tcp.listen(port,
+      [:binary, packet: 0, active: false, reuseaddr: true])
+    
+    # WHEN
+    save_datapath_id(datapath_id)
+    send(SdnEpc.Forwarder, {:ofp_message, self(), {:test, "hello_world"}})
+    {:ok, client} = :gen_tcp.accept(socket)
+
+    # THEN
+    assert :gen_tcp.recv(client, 0) == {:ok, "hello_world"}
   end
 
   test "subscribe messages from switch" do

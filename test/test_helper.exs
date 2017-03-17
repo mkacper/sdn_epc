@@ -5,6 +5,14 @@ defmodule SdnEpc.OfsHandler.InMemory do
     :ok
   end
 
+  def send(_, {:test, msg}) do
+    port = Application.get_env(:sdn_epc, :ofs_handler_test_port)
+    addr = Application.get_env(:sdn_epc, :ofs_handler_test_addr)
+    {:ok, socket} = :gen_tcp.connect(addr, port,
+      [:binary, packet: 0, active: false, reuseaddr: true])
+    :gen_tcp.send(socket, msg)
+    :gen_tcp.close(socket)
+  end
   def send(_, _) do
     :ok
   end

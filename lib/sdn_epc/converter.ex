@@ -13,7 +13,7 @@ defmodule SdnEpc.Converter do
   @doc """
   Convert OpenFlow message to Elixir/Erlang record.
   """
-  @spec convert(msg :: tuple()) :: ofp_message() 
+  @spec convert(msg :: tuple()) :: ofp_message()
   def convert(msg) do
     SdnEpc.OfpmRecord.ofp_message(
       version: @ofp_version,

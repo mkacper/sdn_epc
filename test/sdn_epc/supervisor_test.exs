@@ -3,15 +3,11 @@ defmodule SdnEpc.SupervisorTest do
 
   test "is SdnEpc.Forwarder started" do
     {:ok, _} = Application.ensure_all_started(:sdn_epc)
-    assert SdnEpc.Forwarder
-    |> Process.whereis()
-    |> Process.alive?()
+    assert Process.whereis(SdnEpc.Forwarder)
   end
 
   test "is SdnEpc.OfpcsSup started" do
     {:ok, _} = Application.ensure_all_started(:sdn_epc)
-    assert SdnEpc.OfpcsSup
-    |> Process.whereis()
-    |> Process.alive?()
+    assert Process.whereis(SdnEpc.OfpcsSup)
   end
 end

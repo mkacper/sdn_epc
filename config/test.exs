@@ -11,21 +11,3 @@ config :sdn_epc,
   ofs_handler: SdnEpc.OfsHandler.InMemory,
   ofs_handler_test_addr: {127,0,0,1},
   ofs_handler_test_port: 1111
-
-config :of_driver,
-  listen_ip: {0,0,0,0},
-	listen_port: 6653,
-	listen_opts: [:binary, {:packet, :raw}, {:active, false}, {:reuseaddr, true}],
-  of_compatible_versions: [4],
-  callback_module: :ofs_handler_driver,
-  enable_ping: false,
-  ping_timeout: 1000,
-  ping_idle: 5000,
-  multipart_timeout: 30000       # IMPLEMENT
-
-config :ofs_handler,
-  callback_module: SdnEpc.OfshCall,
-  peer: "localhost",
-  callback_opts: []
-
-config :logger, level: :debug

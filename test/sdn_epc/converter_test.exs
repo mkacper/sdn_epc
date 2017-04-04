@@ -9,7 +9,7 @@ defmodule SdnEpc.ConverterTest do
     msg_converted = SdnEpc.Converter.convert(msg)
 
     # THEN
-    assert Record.is_record msg_converted
+    assert Record.is_record(msg_converted, :ofp_message)
   end
 
   test "convert features reply" do
@@ -20,7 +20,7 @@ defmodule SdnEpc.ConverterTest do
     msg_converted = SdnEpc.Converter.convert(msg)
 
     # THEN
-    assert Record.is_record(msg_converted)
+    assert Record.is_record(msg_converted, :ofp_message)
   end
 
   test "convert port desc reply" do
@@ -30,6 +30,6 @@ defmodule SdnEpc.ConverterTest do
     msg_converted = SdnEpc.Converter.convert(msg)
 
     # THEN
-    assert Record.is_record(msg_converted)
+    assert Record.is_record(msg_converted, :ofp_message)
   end
 end

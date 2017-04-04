@@ -1,20 +1,27 @@
 ExUnit.start()
 
 defmodule SdnEpc.OfsHandler.InMemory do
-  def subscribe(_datapath_id, _callback_module, _type) do
-    :ok
+  def subscribe(datapath_id, _callback_module, type) do
+    Kernel.send(SdnEpc.ForwarderTest, {datapath_id, type})
   end
 
-  def send(_, {:test, msg}) do
-    port = Application.get_env(:sdn_epc, :ofs_handler_test_port)
-    addr = Application.get_env(:sdn_epc, :ofs_handler_test_addr)
-    {:ok, socket} = :gen_tcp.connect(addr, port,
-      [:binary, packet: 0, active: false, reuseaddr: true])
-    :gen_tcp.send(socket, msg)
-    :gen_tcp.close(socket)
+  def send(datapath_id, {:test, msg}) do
+    Kernel.send(SdnEpc.ForwarderTest, {datapath_id, msg})
   end
   def send(_, _) do
     :ok
+  end
+end
+
+defmodule SdnEpc.OfpChannel.InMemory do
+  def send(datapath_id, _msg) do
+    Kernel.send(SdnEpc.ForwarderTest, datapath_id)
+  end
+
+  def open(sup, datapath_id, {:remote_peer, ip, port, _}, [_,
+        {:version, version}]) do
+    Kernel.send(SdnEpc.ForwarderTest, {sup, datapath_id, ip, port, version})
+    {:ok, nil}
   end
 end
 

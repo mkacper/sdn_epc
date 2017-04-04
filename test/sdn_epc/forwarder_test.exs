@@ -4,34 +4,57 @@ defmodule SdnEpc.ForwarderTest do
 
   test "save datapath id" do
     # GIVEN
+    Process.register(self(), SdnEpc.ForwarderTest)
     datapath_id = '00:00:00:00:00:00:00:01'
-    port = Application.get_env(:sdn_epc, :ofs_handler_test_port)
-    {:ok, socket} = :gen_tcp.listen(port,
-      [:binary, packet: 0, active: false, reuseaddr: true])
+    msg = "hello_world"
     
     # WHEN
     save_datapath_id(datapath_id)
-    send(SdnEpc.Forwarder, {:ofp_message, self(), {:test, "hello_world"}})
-    {:ok, client} = :gen_tcp.accept(socket)
+    send(SdnEpc.Forwarder, {:ofp_message, self(), {:test, msg}})
 
     # THEN
-    assert :gen_tcp.recv(client, 0) == {:ok, "hello_world"}
+    assert_receive({^datapath_id, ^msg})
   end
 
   test "subscribe messages from switch" do
-    assert subscribe_messages_from_switch(
-      '00:00:00:00:00:00:00:01', [:aa, :bb]) == :ok
-  end
-
-  test "send message to switch" do
     # GIVEN
-    msg = {:ofp_message, 0, :msg}
-    pid = Process.whereis(SdnEpc.Forwarder)
+    Process.register(self(), SdnEpc.ForwarderTest)
+    datapath_id = '00:00:00:00:00:00:00:01'
+    types = [:hello, :world]
 
     # WHEN
-    send(SdnEpc.Forwarder, msg)
+    subscribe_messages_from_switch(datapath_id, types)
 
     # THEN
-    assert Process.alive?(pid) # need improvement
+    for type <- types, do: assert_receive({^datapath_id, ^type})
+    :ok
+  end
+
+  test "send message to controller" do
+    # GIVEN
+    Process.register(self(), SdnEpc.ForwarderTest)
+    datapath_id = '00:00:00:00:00:00:00:01'
+    msg = OfpMessage.get(:packet_in)
+
+    # WHEN
+    send_msg_to_controller(datapath_id, msg)
+    # THEN
+    assert_receive(^datapath_id)
+  end
+
+  test "open ofp channel" do
+    # GIVEN
+    Process.register(self(), SdnEpc.ForwarderTest)
+    datapath_id = "1"
+    sup = 1
+    ip = {0,0,0,0}
+    port = 0 
+    version = 0
+
+    # WHEN
+    open_ofp_channel(sup, datapath_id, ip, port, version)
+
+    # THEN
+    assert_receive({^sup, ^datapath_id, ^ip, ^port, ^version})
   end
 end

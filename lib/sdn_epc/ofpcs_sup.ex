@@ -1,6 +1,13 @@
 defmodule SdnEpc.OfpcsSup do
   use Supervisor
+  @moduledoc """
+  Supervisor module for OpenFlow channels.
+  """
 
+  @doc """
+  Starts OpenFlow channel supervisor.
+  """
+  @spec start_link() :: Supervisor.on_start()
   def start_link() do
     Supervisor.start_link(__MODULE__, [], name: __MODULE__)
   end

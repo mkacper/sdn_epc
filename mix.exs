@@ -4,6 +4,8 @@ defmodule SdnEpc.Mixfile do
   def project do
     [app: :sdn_epc,
      version: "0.1.0",
+     name: "SdnEpc",
+     source_url: "https://github.com/mkacper/sdn_epc",
      elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
@@ -32,7 +34,8 @@ defmodule SdnEpc.Mixfile do
   defp deps do
     [
       {:ofs_handler,
-       git: "https://github.com/FlowForwarding/ofs_handler", branch: "master"}
+       git: "https://github.com/FlowForwarding/ofs_handler", branch: "master"},
+      {:ex_doc, "~> 0.15.0"}
     ]
   end
 end

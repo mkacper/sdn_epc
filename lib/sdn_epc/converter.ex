@@ -1,8 +1,19 @@
 defmodule SdnEpc.Converter do
+  require Record
   require SdnEpc.OfpmRecord
+  @moduledoc """
+  This modules provides converting OpenFlow messages received from
+  `:ofs_handler` lib to Erlang/Elixir records.
+  """
+
+  @type ofp_message() :: {:ofp_message, integer(), integer(), tuple()}
 
   @ofp_version Application.get_env(:sdn_epc, :ofp_version)
 
+  @doc """
+  Convert OpenFlow message to Elixir/Erlang record.
+  """
+  @spec convert(msg :: tuple()) :: ofp_message()
   def convert(msg) do
     SdnEpc.OfpmRecord.ofp_message(
       version: @ofp_version,

@@ -1,5 +1,6 @@
 defmodule SdnEpc.OfpmRecord do
   require Record
+  @moduledoc false
 
   ofm_path = Application.get_env(:sdn_epc, :ofm_record)
   ofmb_path = Application.get_env(:sdn_epc, :ofmb_record)

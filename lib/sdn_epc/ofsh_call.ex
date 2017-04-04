@@ -1,6 +1,6 @@
 defmodule SdnEpc.OfshCall do
-
   require Logger
+  @moduledoc false
 
   # :ofs_handler callbacks
 
@@ -21,7 +21,7 @@ defmodule SdnEpc.OfshCall do
 
   # Helper functions
 
-  defp start_ofp_channel_sup do
+  defp start_ofp_channel_sup() do
     switch_id = Application.get_env(:sdn_epc, :switch_id)
     Supervisor.start_child(SdnEpc.OfpcsSup, [switch_id])
   end

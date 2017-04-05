@@ -6,10 +6,11 @@ defmodule SdnEpc.ConverterTest do
     # GIVEN
     msg = OfpMessage.get(:packet_in)
     # WHEN
-    msg_converted = SdnEpc.Converter.convert(msg)
-
+    ofp_message = {_, _, _, _, ofp_msg_content} = SdnEpc.Converter.convert(msg)
+    
     # THEN
-    assert Record.is_record(msg_converted, :ofp_message)
+    assert Record.is_record(ofp_message, :ofp_message)
+    assert Record.is_record(ofp_msg_content, :ofp_packet_in)
   end
 
   test "convert features reply" do
@@ -17,19 +18,21 @@ defmodule SdnEpc.ConverterTest do
     msg = OfpMessage.get(:features_reply) 
 
     # WHEN
-    msg_converted = SdnEpc.Converter.convert(msg)
+    ofp_message = {_, _, _, _, ofp_msg_content} = SdnEpc.Converter.convert(msg)
 
     # THEN
-    assert Record.is_record(msg_converted, :ofp_message)
+    assert Record.is_record(ofp_message, :ofp_message)
+    assert Record.is_record(ofp_msg_content, :ofp_features_reply)
   end
 
   test "convert port desc reply" do
     # GIVEN
     msg = OfpMessage.get(:port_desc_reply)
     # WHEN
-    msg_converted = SdnEpc.Converter.convert(msg)
+    ofp_message = {_, _, _, _, ofp_msg_content} = SdnEpc.Converter.convert(msg)
 
     # THEN
-    assert Record.is_record(msg_converted, :ofp_message)
+    assert Record.is_record(ofp_message, :ofp_message)
+    assert Record.is_record(ofp_msg_content, :ofp_port_desc_reply)
   end
 end

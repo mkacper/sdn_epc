@@ -27,7 +27,6 @@ defmodule SdnEpc.ForwarderTest do
 
     # THEN
     for type <- types, do: assert_receive({^datapath_id, ^type})
-    :ok
   end
 
   test "send message to controller" do

@@ -1,4 +1,4 @@
-defmodule SdnEpcTest do
+defmodule SdnEpc.OfpmRecordTest do
   use ExUnit.Case, async: true
   require SdnEpc.OfpmRecord
   require Record

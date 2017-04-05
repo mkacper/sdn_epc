@@ -20,7 +20,11 @@ defmodule SdnEpc.OfpChannel.InMemory do
 
   def open(sup, datapath_id, {:remote_peer, ip, port, _}, [_,
         {:version, version}]) do
-    Kernel.send(SdnEpc.ForwarderTest, {sup, datapath_id, ip, port, version})
+    case Process.whereis(SdnEpc.ForwarderTest) do
+      nil -> :ok
+      _ -> Kernel.send(SdnEpc.ForwarderTest, {sup, datapath_id, ip, port,
+                                             version})
+    end
     {:ok, nil}
   end
 end

@@ -48,7 +48,7 @@ defmodule OfpMessage do
       n_tables: 111,
       auxiliary_id: 0,
       capabilities: capabilities,
-    ] 
+    ]
     {:features_reply, 0, feature_reply}
   end
   def get(:port_desc_reply) do

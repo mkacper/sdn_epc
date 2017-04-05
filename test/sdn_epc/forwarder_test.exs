@@ -7,7 +7,7 @@ defmodule SdnEpc.ForwarderTest do
     Process.register(self(), SdnEpc.ForwarderTest)
     datapath_id = '00:00:00:00:00:00:00:01'
     msg = "hello_world"
-    
+
     # WHEN
     save_datapath_id(datapath_id)
     send(SdnEpc.Forwarder, {:ofp_message, self(), {:test, msg}})
@@ -47,7 +47,7 @@ defmodule SdnEpc.ForwarderTest do
     datapath_id = "1"
     sup = 1
     ip = {0,0,0,0}
-    port = 0 
+    port = 0
     version = 0
 
     # WHEN

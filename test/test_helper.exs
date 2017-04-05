@@ -6,7 +6,10 @@ defmodule SdnEpc.OfsHandler.InMemory do
   end
 
   def send(datapath_id, {:test, msg}) do
-    Kernel.send(SdnEpc.ForwarderTest, {datapath_id, msg})
+    case Process.whereis(SdnEpc.ForwarderTest) do
+      nil -> :ok
+      _ -> Kernel.send(SdnEpc.ForwarderTest, {datapath_id, msg})
+    end
   end
   def send(_, _) do
     :ok

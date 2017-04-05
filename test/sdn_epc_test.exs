@@ -4,8 +4,6 @@ defmodule SdnEpcTest do
 
   test "is main supervisor started with app" do
     {:ok, _} = Application.ensure_all_started(:sdn_epc)
-    assert SdnEpc.Supervisor
-    |> Process.whereis()
-    |> Process.alive?
+    assert Process.whereis(SdnEpc.Supervisor)
   end
 end

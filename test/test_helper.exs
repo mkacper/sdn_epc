@@ -2,7 +2,10 @@ ExUnit.start()
 
 defmodule SdnEpc.OfsHandler.InMemory do
   def subscribe(datapath_id, _callback_module, type) do
-    Kernel.send(SdnEpc.ForwarderTest, {datapath_id, type})
+    case Process.whereis(SdnEpc.ForwarderTest) do
+      nil -> :ok
+      _ -> Kernel.send(SdnEpc.ForwarderTest, {datapath_id, type})
+    end
   end
 
   def send(datapath_id, {:test, msg}) do

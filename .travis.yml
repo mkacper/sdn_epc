@@ -9,10 +9,12 @@ install:
   - mix local.rebar --force
   - mix local.hex --force
   - mix deps.get
+  - mix deps.compile lager
+  - mix deps.compile
 
 script:
   mix test
 
 branches:
-  - master
-  - feature/test
+  only:
+    - feature/test

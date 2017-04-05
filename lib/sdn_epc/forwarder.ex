@@ -12,22 +12,21 @@ defmodule SdnEpc.Forwarder do
 
   @doc """
   Starts SdnEpc.Forwarder process.
-
-  Returns {:ok, pid}
   """
-  def start_link do
+  @spec start_link() :: GenServer.on_start()
+  def start_link() do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
   @doc """
   Save switch datapath which is necessary to send OpenFlow messages to switch.
 
-  Returns :ok
-
   ## Example
-      SdnEpc.Forwarder.save_datapath_id('00:00:00:00:00:00:00:01')
+
+      iex> SdnEpc.Forwarder.save_datapath_id('00:00:00:00:00:00:00:01')
       :ok
   """
+  @spec save_datapath_id(id :: charlist()) :: term()
   def save_datapath_id(datapath_id) do
     GenServer.cast(__MODULE__, {:save_datapath_id, datapath_id})
   end
@@ -35,12 +34,14 @@ defmodule SdnEpc.Forwarder do
   @doc """
   Subscribes OpenFlow messages of particular types.
 
-  Returns :ok
-
   ## Example
-      SdnEpc.Forwarder.subscribe_messages_from_switch('00:00:00:00:00:00:00:01,
-        [:packet_in])
+
+      iex> SdnEpc.Forwarder.subscribe_messages_from_switch(
+      ...> '00:00:00:00:00:00:00:01', [:packet_in])
+      :ok
   """
+  @spec subscribe_messages_from_switch(id :: charlist(),
+    types :: [atom()]) :: term()
   def subscribe_messages_from_switch(datapath_id, types) do
     GenServer.cast(__MODULE__,
       {:subscribe_switch_msg, datapath_id: datapath_id, types: types})
@@ -49,12 +50,15 @@ defmodule SdnEpc.Forwarder do
   @doc """
   Opens OpenFlow channel to communicate app with controller.
 
-  Returns {:ok, pid}
-
   ## Example
 
-      SdnEpc.Forwarder.open_ofp_channel(sup_pid, "1", {192, 168, 0, 1}, 6653, 4)
+      iex> {:ok, pid} = Supervisor.start_child(SdnEpc.OfpcsSup, [1])
+      iex> SdnEpc.Forwarder.open_ofp_channel(pid, "1", {192, 168, 0, 1},
+      ...> 6653, 4)
+      :ok
   """
+  @spec open_ofp_channel(sup :: pid(), id :: binary(), ip :: :inet.ip_address(),
+    port :: :inet.port_number(), version :: integer()) :: term()
   def open_ofp_channel(sup, switch_id, ip, port, version) do
     GenServer.call(__MODULE__,
       {:open_of_channel, %{sup: sup, switch_id: switch_id, ip: ip,
@@ -63,9 +67,9 @@ defmodule SdnEpc.Forwarder do
 
   @doc """
   Sends OpenFlow message to controller.
-
-  Returns :ok
   """
+  @spec send_msg_to_controller(id :: binary(),
+    SdnEpc.Converter.ofp_message()) :: term()
   def send_msg_to_controller(switch_id, msg) do
     GenServer.cast(__MODULE__,
       {:send_msg_to_controller, switch_id, msg})

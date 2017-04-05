@@ -15,7 +15,8 @@ defmodule SdnEpc.OfshCall do
 
   def handle_message(msg, _datapath_id)  do
     Logger.debug("Message received from switch")
-    SdnEpc.Forwarder.send_msg_to_controller(1, msg)
+    Application.get_env(:sdn_epc, :switch_id) 
+    |> SdnEpc.Forwarder.send_msg_to_controller(msg)
   end
 
   # Helper functions

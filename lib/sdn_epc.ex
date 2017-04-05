@@ -5,11 +5,12 @@ defmodule SdnEpc do
   """
 
   @doc """
-  Starts the main supervisor and link to it. In fact it is an Application
-  behaviour callback `c:start/2`
+  Starts the main supervisor and links to it.
 
-  Returns `{:ok, pid}`
+  In fact it is an Application behaviour callback `c:start/2`
   """
+  @spec start(type :: Application.start_type(),
+    args :: term()) :: Supervisor.on_start_child()
   def start(_type, _args) do
     SdnEpc.Supervisor.start_link()
   end

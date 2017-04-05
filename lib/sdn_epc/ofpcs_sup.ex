@@ -7,6 +7,7 @@ defmodule SdnEpc.OfpcsSup do
   @doc """
   Starts OpenFlow channel supervisor.
   """
+  @spec start_link() :: Supervisor.on_start()
   def start_link() do
     Supervisor.start_link(__MODULE__, [], name: __MODULE__)
   end

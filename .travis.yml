@@ -12,3 +12,7 @@ install:
 
 script:
   mix test
+
+branches:
+  - master
+  - feature/test

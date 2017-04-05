@@ -14,3 +14,7 @@ install:
 
 script:
   mix test
+
+branch:
+  only:
+    - master

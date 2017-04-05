@@ -15,6 +15,9 @@ install:
 script:
   mix test
 
+after_script:
+   - MIX_ENV=docs mix inch.report
+
 branch:
   only:
     - master

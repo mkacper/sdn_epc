@@ -14,7 +14,3 @@ install:
 
 script:
   mix test
-
-branches:
-  only:
-    - feature/test

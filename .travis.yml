@@ -13,7 +13,7 @@ install:
   - mix deps.compile
 
 script:
-  mix test
+  MIX_ENV=test mix coveralls.travis
 
 after_script:
    - MIX_ENV=docs mix inch.report

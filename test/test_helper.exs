@@ -1,18 +1,15 @@
 ExUnit.start()
 
 defmodule SdnEpc.OfsHandler.InMemory do
-  def subscribe(datapath_id, _callback_module, type) do
-    case Process.whereis(SdnEpc.ForwarderTest) do
-      nil -> :ok
-      _ -> Kernel.send(SdnEpc.ForwarderTest, {datapath_id, type})
-    end
+  def subscribe({datapath_id, pid}, _callback_module, type) do
+    Kernel.send(pid, {datapath_id, type})
+  end
+  def subscribe(_, _, _) do
+    :ok
   end
 
-  def send(datapath_id, {:test, msg}) do
-    case Process.whereis(SdnEpc.ForwarderTest) do
-      nil -> :ok
-      _ -> Kernel.send(SdnEpc.ForwarderTest, {datapath_id, msg})
-    end
+  def send(datapath_id, {:test, pid, msg}) do
+    Kernel.send(pid, {datapath_id, msg})
   end
   def send(_, _) do
     :ok
@@ -20,17 +17,16 @@ defmodule SdnEpc.OfsHandler.InMemory do
 end
 
 defmodule SdnEpc.OfpChannel.InMemory do
-  def send(datapath_id, _msg) do
-    Kernel.send(SdnEpc.ForwarderTest, datapath_id)
+  def send({datapath_id, pid}, _msg) do
+    Kernel.send(pid, datapath_id)
   end
 
-  def open(sup, datapath_id, {:remote_peer, ip, port, _}, [_,
+  def open({:test, sup}, datapath_id, {:remote_peer, ip, port, _}, [_,
         {:version, version}]) do
-    case Process.whereis(SdnEpc.ForwarderTest) do
-      nil -> :ok
-      _ -> Kernel.send(SdnEpc.ForwarderTest, {sup, datapath_id, ip, port,
-                                             version})
-    end
+    Kernel.send(sup, {sup, datapath_id, ip, port, version})
+    {:ok, nil}
+  end
+  def open(_, _, _, _) do
     {:ok, nil}
   end
 end

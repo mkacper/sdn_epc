@@ -9,7 +9,7 @@ defmodule SdnEpc.ForwarderTest do
 
     # WHEN
     SdnEpc.Forwarder.save_datapath_id(datapath_id)
-    send(SdnEpc.Forwarder, {:ofp_message, self(), {:test, msg}})
+    send(SdnEpc.Forwarder, {:ofp_message, self(), {:test, self(), msg}})
 
     # THEN
     assert_receive({^datapath_id, ^msg})
@@ -17,12 +17,11 @@ defmodule SdnEpc.ForwarderTest do
 
   test "subscribe messages from switch" do
     # GIVEN
-    Process.register(self(), SdnEpc.ForwarderTest)
     datapath_id = '00:00:00:00:00:00:00:01'
     types = [:hello, :world]
 
     # WHEN
-    SdnEpc.Forwarder.subscribe_messages_from_switch(datapath_id, types)
+    SdnEpc.Forwarder.subscribe_messages_from_switch({datapath_id, self()}, types)
 
     # THEN
     for type <- types, do: assert_receive({^datapath_id, ^type})
@@ -30,21 +29,20 @@ defmodule SdnEpc.ForwarderTest do
 
   test "send message to controller" do
     # GIVEN
-    Process.register(self(), SdnEpc.ForwarderTest)
     datapath_id = '00:00:00:00:00:00:00:01'
     msg = OfpMessage.get(:packet_in)
 
     # WHEN
-    SdnEpc.Forwarder.send_msg_to_controller(datapath_id, msg)
+    SdnEpc.Forwarder.send_msg_to_controller({datapath_id, self()}, msg)
     # THEN
     assert_receive(^datapath_id)
   end
 
   test "open ofp channel" do
     # GIVEN
-    Process.register(self(), SdnEpc.ForwarderTest)
+    me = self()
     datapath_id = "1"
-    sup = 1
+    sup = {:test, me}
     ip = {0,0,0,0}
     port = 0
     version = 0
@@ -53,6 +51,6 @@ defmodule SdnEpc.ForwarderTest do
     SdnEpc.Forwarder.open_ofp_channel(sup, datapath_id, ip, port, version)
 
     # THEN
-    assert_receive({^sup, ^datapath_id, ^ip, ^port, ^version})
+    assert_receive({^me, ^datapath_id, ^ip, ^port, ^version})
   end
 end

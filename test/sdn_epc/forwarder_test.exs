@@ -1,6 +1,5 @@
 defmodule SdnEpc.ForwarderTest do
   use ExUnit.Case, async: true
-  import SdnEpc.Forwarder
 
   test "save datapath id" do
     # GIVEN
@@ -9,7 +8,7 @@ defmodule SdnEpc.ForwarderTest do
     msg = "hello_world"
 
     # WHEN
-    save_datapath_id(datapath_id)
+    SdnEpc.Forwarder.save_datapath_id(datapath_id)
     send(SdnEpc.Forwarder, {:ofp_message, self(), {:test, msg}})
 
     # THEN
@@ -23,7 +22,7 @@ defmodule SdnEpc.ForwarderTest do
     types = [:hello, :world]
 
     # WHEN
-    subscribe_messages_from_switch(datapath_id, types)
+    SdnEpc.Forwarder.subscribe_messages_from_switch(datapath_id, types)
 
     # THEN
     for type <- types, do: assert_receive({^datapath_id, ^type})
@@ -36,7 +35,7 @@ defmodule SdnEpc.ForwarderTest do
     msg = OfpMessage.get(:packet_in)
 
     # WHEN
-    send_msg_to_controller(datapath_id, msg)
+    SdnEpc.Forwarder.send_msg_to_controller(datapath_id, msg)
     # THEN
     assert_receive(^datapath_id)
   end
@@ -51,7 +50,7 @@ defmodule SdnEpc.ForwarderTest do
     version = 0
 
     # WHEN
-    open_ofp_channel(sup, datapath_id, ip, port, version)
+    SdnEpc.Forwarder.open_ofp_channel(sup, datapath_id, ip, port, version)
 
     # THEN
     assert_receive({^sup, ^datapath_id, ^ip, ^port, ^version})

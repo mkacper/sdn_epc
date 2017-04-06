@@ -16,7 +16,7 @@ script:
   MIX_ENV=test mix coveralls.travis
 
 after_script:
-   - MIX_ENV=docs mix inch.report
+   - mix inch.report
 
 branch:
   only:

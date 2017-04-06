@@ -3,7 +3,6 @@ defmodule SdnEpc.ForwarderTest do
 
   test "save datapath id" do
     # GIVEN
-    Process.register(self(), SdnEpc.ForwarderTest)
     datapath_id = '00:00:00:00:00:00:00:01'
     msg = "hello_world"
 

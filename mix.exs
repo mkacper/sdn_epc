@@ -6,7 +6,7 @@ defmodule SdnEpc.Mixfile do
      version: "0.1.0",
      name: "SdnEpc",
      source_url: "https://github.com/mkacper/sdn_epc",
-     elixir: "~> 1.4",
+     elixir: "~> 1.4.2",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      test_coverage: [tool: ExCoveralls],
@@ -20,8 +20,8 @@ defmodule SdnEpc.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [extra_applications: [:exometer, :logger, :of_driver, :ofs_handler, :of_protocol,
-                         :of_msg_lib, :elixometer],
+    [extra_applications: [:logger, :of_driver, :ofs_handler, :of_protocol,
+                         :of_msg_lib, :exometer, :elixometer],
     mod: {SdnEpc, []}]
   end
 
@@ -36,19 +36,19 @@ defmodule SdnEpc.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
+      {:lager, "~> 3.2.1", override: true},
       {:ofs_handler,
        git: "https://github.com/FlowForwarding/ofs_handler", branch: "master"},
       {:ex_doc, "~> 0.15.0"},
       {:excoveralls, "~> 0.6", only: :test},
       {:inch_ex, "~>0.5.6", only: :dev},
-      {:lager, "~> 3.2", override: true},
       {:elixometer, github: "pinterest/elixometer"},
       {:exometer, github: "Feuerlabs/exometer"},
       {:edown, "~> 0.8.1", override: true},
       {:parse_trans, "~> 3.0.0", override: true},
       {:setup, github: "uwiger/setup", manager: :rebar, override: true},
       {:exometer_core, "~> 1.4.0", override: true},
-      {:meck, "~> 0.8.4", override: true}
+      {:meck, "~> 0.8.4", override: true},
     ]
   end
 end

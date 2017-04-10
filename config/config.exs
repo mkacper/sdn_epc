@@ -27,7 +27,6 @@ use Mix.Config
 # Configuration from the imported file will override the ones defined
 # here (which is why it is important to import them last).
 #
-#     import_config "#{Mix.env}.exs"
 
 config :sdn_epc,
   ofp_version: 4,
@@ -36,7 +35,9 @@ config :sdn_epc,
   controller_port: 6653,
   switch_id: 1,
   ofm_record: "deps/of_protocol/include/of_protocol.hrl",
-  ofmb_record: "deps/of_protocol/include/ofp_v4.hrl"
+  ofmb_record: "deps/of_protocol/include/ofp_v4.hrl",
+  ofs_handler: :ofs_handler,
+  ofp_channel: :ofp_channel
 
 config :of_driver,
   listen_ip: {0,0,0,0},
@@ -50,8 +51,10 @@ config :of_driver,
   multipart_timeout: 30000       # IMPLEMENT
 
 config :ofs_handler,
-    callback_module: SdnEpc.OfshCall,
-    peer: "localhost",
-    callback_opts: []
+  callback_module: SdnEpc.OfshCall,
+  peer: "localhost",
+  callback_opts: []
 
 config :logger, level: :debug
+
+import_config "#{Mix.env}.exs"

@@ -1,6 +1,8 @@
 defmodule SdnEpc.Forwarder do
   require Logger
   use GenServer
+  @ofs_handler Application.get_env(:sdn_epc, :ofs_handler)
+  @ofp_channel Application.get_env(:sdn_epc, :ofp_channel)
   @moduledoc """
   Provides functionalities to send/receive OpenFlow messages to/from SDN switch
   and controller.
@@ -80,7 +82,7 @@ defmodule SdnEpc.Forwarder do
   end
 
   def handle_call({:open_of_channel, args}, _from, state) do
-    {:ok, _conn_pid} = :ofp_channel.open(args[:sup],
+    {:ok, _conn_pid} = @ofp_channel.open(args[:sup],
       args[:switch_id], {:remote_peer, args[:ip], args[:port], :tcp},
       controlling_process: __MODULE__, version: args[:version])
     {:reply, :ok, state}
@@ -92,19 +94,19 @@ defmodule SdnEpc.Forwarder do
   def handle_cast({:subscribe_switch_msg, datapath_id: datapath_id,
                   types: types}, state) do
     Enum.each(types,
-      &(:ofs_handler.subscribe(datapath_id, SdnEpc.OfshCall, &1)))
+      &(@ofs_handler.subscribe(datapath_id, SdnEpc.OfshCall, &1)))
     {:noreply, state}
   end
   def handle_cast({:send_msg_to_controller, switch_id, msg}, state) do
     msg_converted = SdnEpc.Converter.convert(msg)
-    :ofp_channel.send(switch_id, msg_converted)
+    @ofp_channel.send(switch_id, msg_converted)
     Logger.debug("Message send to controller")
     {:noreply, state}
   end
 
   def handle_info({:ofp_message, _from, msg},
     state = %{datapath_id: datapath_id}) do
-    :ofs_handler.send(datapath_id, msg)
+    @ofs_handler.send(datapath_id, msg)
     Logger.debug("Message send to switch")
     {:noreply, state}
   end

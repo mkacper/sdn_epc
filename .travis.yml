@@ -1,0 +1,23 @@
+language: elixir
+
+elixir:
+  - 1.4.0
+otp_release:
+  - 18.3
+
+install:
+  - mix local.rebar --force
+  - mix local.hex --force
+  - mix deps.get
+  - mix deps.compile lager
+  - mix deps.compile
+
+script:
+  MIX_ENV=test mix coveralls.travis
+
+after_script:
+   - mix inch.report
+
+branch:
+  only:
+    - master

@@ -57,4 +57,15 @@ config :ofs_handler,
 
 config :logger, level: :debug
 
+config(:exometer, report: [reporters: [{:exometer_report_graphite, [
+                                                prefix: 'SdnEpc',
+                                                host: '127.0.0.1',
+                                                port: 2003,
+                                                api_key: ''
+                                              ]}]])
+
+config(:elixometer, reporter: :exometer_report_graphite,
+  env: Mix.env,
+  metric_prefix: "myapp")
+
 import_config "#{Mix.env}.exs"

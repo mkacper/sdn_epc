@@ -1,6 +1,7 @@
 defmodule SdnEpc.Converter do
   require Record
   require SdnEpc.OfpmRecord
+  use Elixometer
   @moduledoc """
   This modules provides converting OpenFlow messages received from
   `:ofs_handler` lib to Erlang/Elixir records.
@@ -13,6 +14,7 @@ defmodule SdnEpc.Converter do
   @doc """
   Convert OpenFlow message to Elixir/Erlang record.
   """
+  @timed(key: "convert_message.function")
   @spec convert(msg :: tuple()) :: ofp_message()
   def convert(msg) do
     SdnEpc.OfpmRecord.ofp_message(

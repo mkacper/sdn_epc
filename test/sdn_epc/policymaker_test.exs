@@ -1,15 +1,20 @@
 defmodule SdnEpc.PolicymakerTest do
   use ExUnit.Case, async: false
 
+  @count_duration Application.get_env(:sdn_epc, :pic_count_duration)
+  @drop_duration Application.get_env(:sdn_epc, :pic_drop_duration)
+
   test "detect DDos" do
     # GIVEN
     self = self()
-    time = 10
-    drop_time = 10
-    msgs_stats = %{start_time: System.system_time(:seconds) - time * 1000, count: 100}
+    msgs_stats =
+      %{start_time: System.system_time(:seconds) - @count_duration * 1000,
+        count: 100}
 
     # WHEN
-    timer = fn() -> Process.send_after(self, :ok, drop_time * 1000 + 1000) end
+    SdnEpc.PolicymakerStash.set_drop_start_time(nil)
+    timer =
+      fn() -> Process.send_after(self, :ok, @drop_duration * 1000 + 1000) end
     spawn(timer)
 
     # THEN

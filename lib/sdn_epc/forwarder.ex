@@ -78,7 +78,8 @@ defmodule SdnEpc.Forwarder do
   # Server Callbacks
 
   def init(:ok) do
-    {:ok, %{}}
+    {:ok, %{ofp_messages_stats: %{start_time: System.system_time(:seconds),
+                                  count: 0}}}
   end
 
   def handle_call({:open_of_channel, args}, _from, state) do
@@ -88,8 +89,8 @@ defmodule SdnEpc.Forwarder do
     {:reply, :ok, state}
   end
 
-  def handle_cast({:save_datapath_id, datapath_id}, _state) do
-    {:noreply, %{datapath_id: datapath_id}}
+  def handle_cast({:save_datapath_id, datapath_id}, state) do
+    {:noreply, Map.put(state, :datapath_id, datapath_id)}
   end
   def handle_cast({:subscribe_switch_msg, datapath_id: datapath_id,
                   types: types}, state) do
@@ -97,11 +98,12 @@ defmodule SdnEpc.Forwarder do
       &(@ofs_handler.subscribe(datapath_id, SdnEpc.OfshCall, &1)))
     {:noreply, state}
   end
-  def handle_cast({:send_msg_to_controller, switch_id, msg}, state) do
-    msg_converted = SdnEpc.Converter.convert(msg)
-    @ofp_channel.send(switch_id, msg_converted)
+  def handle_cast({:send_msg_to_controller, switch_id, msg},
+    state = %{ofp_messages_stats: msgs_stats}) do
+    new_state = send_msg_to_controller(SdnEpc.Policymaker.forward?(msgs_stats),
+      switch_id, msg, state)
     Logger.debug("Message send to controller")
-    {:noreply, state}
+    {:noreply, new_state}
   end
 
   def handle_info({:ofp_message, _from, msg},
@@ -112,5 +114,18 @@ defmodule SdnEpc.Forwarder do
   end
   def handle_info(_, state) do
     {:noreply, state}
+  end
+
+  # Helper functions
+
+  defp send_msg_to_controller(false, _switch_id, _msg, state) do
+    Logger.debug("ddos detected")
+    Map.put(state, :ofp_messages_stats,
+      %{start_time: System.system_time(:seconds), count: 0})
+  end
+  defp send_msg_to_controller(true, switch_id, msg, state) do
+    msg_converted = SdnEpc.Converter.convert(msg)
+    @ofp_channel.send(switch_id, msg_converted)
+    update_in(state, [:ofp_messages_stats, :count], &(&1 + 1))
   end
 end

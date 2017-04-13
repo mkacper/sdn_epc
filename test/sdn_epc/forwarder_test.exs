@@ -1,5 +1,8 @@
 defmodule SdnEpc.ForwarderTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
+
+  @drop_duration Application.get_env(:sdn_epc, :pic_drop_duration)
+  @count_duration Application.get_env(:sdn_epc, :pic_count_duration)
 
   test "save datapath id" do
     # GIVEN
@@ -26,15 +29,39 @@ defmodule SdnEpc.ForwarderTest do
     for type <- types, do: assert_receive({^datapath_id, ^type})
   end
 
-  test "send message to controller" do
+  test "send message to controller (normal network traffic)" do
     # GIVEN
     datapath_id = '00:00:00:00:00:00:00:01'
     msg = OfpMessage.get(:packet_in)
 
     # WHEN
+    SdnEpc.PolicymakerStash.set_drop_start_time(nil)
+    SdnEpc.Forwarder.send_msg_to_controller({'1', nil}, msg)
+    Process.sleep(100)
     SdnEpc.Forwarder.send_msg_to_controller({datapath_id, self()}, msg)
     # THEN
     assert_receive(^datapath_id)
+  end
+
+  test "send message to controller (DDoS)" do
+    # GIVEN
+    datapath_id = '00:00:00:00:00:00:00:01'
+    msg = OfpMessage.get(:packet_in)
+    timeout =
+      @drop_duration / 2 * 1000
+      |> Float.ceil()
+      |> round()
+
+    # WHEN
+    SdnEpc.PolicymakerStash.set_drop_start_time(nil)
+    for _ <- 1..20 do
+      SdnEpc.Forwarder.send_msg_to_controller({'00', self()}, msg)
+    end
+    Process.sleep(@count_duration * 1000)
+    SdnEpc.Forwarder.send_msg_to_controller({datapath_id, self()}, msg)
+
+    # THEN
+    refute_receive(^datapath_id, timeout)
   end
 
   test "open ofp channel" do

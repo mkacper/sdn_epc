@@ -12,4 +12,5 @@ config :sdn_epc,
   ofp_channel: SdnEpc.OfpChannel.InMemory,
   pic_count_duration: 2,
   pic_msgs_limit: 10,
-  pic_drop_duration: 2
+  pic_drop_duration: 2,
+  pm_sw_mode_timeout:  3000 

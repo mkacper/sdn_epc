@@ -40,7 +40,8 @@ config :sdn_epc,
   ofp_channel: :ofp_channel,
   pic_count_duration: 10,
   pic_msgs_limit: 10,
-  pic_drop_duration: 10
+  pic_drop_duration: 10,
+  pm_sw_mode_timeout: 3000
 
 config :of_driver,
   listen_ip: {0,0,0,0},

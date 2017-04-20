@@ -49,7 +49,7 @@ defmodule SdnEpc.ForwarderTest do
     # GIVEN
     datapath_id = '00:00:00:00:00:00:00:01'
     msg = OfpMessage.get(:packet_in)
-    timeout = calculate_receive_timeout()
+    timeout = SdnEpc.TestHelper.calculate_receive_timeout(@drop_duration)
 
     # WHEN
     SdnEpc.Forwarder.switch_mode(:blocking)
@@ -73,12 +73,6 @@ defmodule SdnEpc.ForwarderTest do
 
     # THEN
     assert_receive({^me, ^datapath_id, ^ip, ^port, ^version})
-  end
-
-  defp calculate_receive_timeout() do
-    @drop_duration / 2 * 1000
-    |> Float.ceil()
-    |> round()
   end
 
   defp make_random_message() do

@@ -9,4 +9,7 @@ config :sdn_epc,
   ofm_record: "deps/of_protocol/include/of_protocol.hrl",
   ofmb_record: "deps/of_protocol/include/ofp_v4.hrl",
   ofs_handler: SdnEpc.OfsHandler.InMemory,
-  ofp_channel: SdnEpc.OfpChannel.InMemory
+  ofp_channel: SdnEpc.OfpChannel.InMemory,
+  pic_count_duration: 2,
+  pic_msgs_limit: 10,
+  pic_drop_duration: 2

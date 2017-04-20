@@ -4,6 +4,11 @@ defmodule SdnEpc.ForwarderTest do
   @drop_duration Application.get_env(:sdn_epc, :pic_drop_duration)
   @count_duration Application.get_env(:sdn_epc, :pic_count_duration)
 
+  setup do
+    Application.stop(:sdn_epc)
+    :ok = Application.start(:sdn_epc)
+  end
+
   test "save datapath id" do
     # GIVEN
     datapath_id = '00:00:00:00:00:00:00:01'
@@ -35,9 +40,6 @@ defmodule SdnEpc.ForwarderTest do
     msg = OfpMessage.get(:packet_in)
 
     # WHEN
-    SdnEpc.PolicymakerStash.set_drop_start_time(nil)
-    SdnEpc.Forwarder.send_msg_to_controller({'1', nil}, msg)
-    Process.sleep(100)
     SdnEpc.Forwarder.send_msg_to_controller({datapath_id, self()}, msg)
     # THEN
     assert_receive(^datapath_id)
@@ -47,17 +49,10 @@ defmodule SdnEpc.ForwarderTest do
     # GIVEN
     datapath_id = '00:00:00:00:00:00:00:01'
     msg = OfpMessage.get(:packet_in)
-    timeout =
-      @drop_duration / 2 * 1000
-      |> Float.ceil()
-      |> round()
+    timeout = calculate_receive_timeout()
 
     # WHEN
-    SdnEpc.PolicymakerStash.set_drop_start_time(nil)
-    for _ <- 1..20 do
-      SdnEpc.Forwarder.send_msg_to_controller({'00', self()}, msg)
-    end
-    Process.sleep(@count_duration * 1000)
+    SdnEpc.Forwarder.switch_mode(:blocking)
     SdnEpc.Forwarder.send_msg_to_controller({datapath_id, self()}, msg)
 
     # THEN
@@ -78,5 +73,17 @@ defmodule SdnEpc.ForwarderTest do
 
     # THEN
     assert_receive({^me, ^datapath_id, ^ip, ^port, ^version})
+  end
+
+  defp calculate_receive_timeout() do
+    @drop_duration / 2 * 1000
+    |> Float.ceil()
+    |> round()
+  end
+
+  defp make_random_message() do
+    100..1_000
+    |> Enum.random()
+    |> Integer.to_charlist()
   end
 end

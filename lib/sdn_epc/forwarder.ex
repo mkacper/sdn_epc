@@ -8,6 +8,8 @@ defmodule SdnEpc.Forwarder do
   and controller.
   """
 
+  defstruct datapath_id: '', mode: :forwarding
+
   # Client API
 
   @doc """
@@ -75,11 +77,19 @@ defmodule SdnEpc.Forwarder do
       {:send_msg_to_controller, switch_id, msg})
   end
 
+  @doc """
+  Change Forwarder mode of working. Possible options are :forwarding (default)
+  and :blocking.
+  """
+  @spec switch_mode(mode :: atom()) :: term()
+  def switch_mode(mode) do
+    GenServer.call(__MODULE__, {:switch_mode, mode})
+  end
+
   # Server Callbacks
 
   def init(:ok) do
-    {:ok, %{ofp_messages_stats: %{start_time: System.system_time(:seconds),
-                                  count: 0}}}
+    {:ok, %SdnEpc.Forwarder{}}
   end
 
   def handle_call({:open_of_channel, args}, _from, state) do
@@ -87,6 +97,9 @@ defmodule SdnEpc.Forwarder do
       args[:switch_id], {:remote_peer, args[:ip], args[:port], :tcp},
       controlling_process: __MODULE__, version: args[:version])
     {:reply, :ok, state}
+  end
+  def handle_call({:switch_mode, mode}, _from, state) do
+    {:reply, :ok, Map.put(state, :mode, mode)}
   end
 
   def handle_cast({:save_datapath_id, datapath_id}, state) do
@@ -99,11 +112,16 @@ defmodule SdnEpc.Forwarder do
     {:noreply, state}
   end
   def handle_cast({:send_msg_to_controller, switch_id, msg},
-    state = %{ofp_messages_stats: msgs_stats}) do
-    new_state = send_msg_to_controller(SdnEpc.Policymaker.forward?(msgs_stats),
-      switch_id, msg, state)
+    state = %{mode: :forwarding}) do
+    msg_converted = SdnEpc.Converter.convert(msg)
+    @ofp_channel.send(switch_id, msg_converted)
     Logger.debug("Message send to controller")
-    {:noreply, new_state}
+    {:noreply, state}
+  end
+  def handle_cast({:send_msg_to_controller, _switch_id, _msg},
+    state = %{mode: :blocking}) do
+    Logger.debug("Message dropped")
+    {:noreply, state}
   end
 
   def handle_info({:ofp_message, _from, msg},
@@ -114,18 +132,5 @@ defmodule SdnEpc.Forwarder do
   end
   def handle_info(_, state) do
     {:noreply, state}
-  end
-
-  # Helper functions
-
-  defp send_msg_to_controller(false, _switch_id, _msg, state) do
-    Logger.debug("ddos detected")
-    Map.put(state, :ofp_messages_stats,
-      %{start_time: System.system_time(:seconds), count: 0})
-  end
-  defp send_msg_to_controller(true, switch_id, msg, state) do
-    msg_converted = SdnEpc.Converter.convert(msg)
-    @ofp_channel.send(switch_id, msg_converted)
-    update_in(state, [:ofp_messages_stats, :count], &(&1 + 1))
   end
 end

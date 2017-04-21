@@ -61,8 +61,8 @@ defmodule SdnEpc.Policymaker do
       mcs
       |> Enum.drop(1)
       |> Enum.concat([tmc])
-    Map.put(state, :msg_counter_samples, updated_mcs)
-    |> Map.put(:temp_msg_counter, 0)
+    Map.put(Map.put(state, :msg_counter_samples, updated_mcs),
+      :temp_msg_counter, 0)
   end
 
   defp calculate_msgs_stats(state = %{msg_counter_samples: mcs}) do

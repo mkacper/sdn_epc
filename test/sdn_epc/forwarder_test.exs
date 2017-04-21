@@ -78,7 +78,7 @@ defmodule SdnEpc.ForwarderTest do
     me = self()
     datapath_id = "1"
     sup = {:test, me}
-    ip = {0,0,0,0}
+    ip = {0, 0, 0, 0}
     port = 0
     version = 0
 

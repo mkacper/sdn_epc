@@ -16,14 +16,13 @@ defmodule SdnEpc.PolicymakerTest do
     timeout_to_detect_ddos = @count_duration
     receive_timeout = SdnEpc.TestHelper.calculate_receive_timeout(@drop_duration)
     datapath_id = '01'
-    fake_msg = :fake
 
     # WHEN
     for _ <- 1..@msgs_limit do
       SdnEpc.Policymaker.update_msgs_stats(msg)
     end
     Process.sleep(timeout_to_detect_ddos)
-    SdnEpc.Forwarder.send_msg_to_controller({datapath_id, self()}, fake_msg)
+    SdnEpc.Forwarder.send_msg_to_controller({datapath_id, self()}, msg)
 
     # THEN
     refute_receive(^datapath_id, receive_timeout)

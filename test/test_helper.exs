@@ -20,6 +20,9 @@ defmodule SdnEpc.OfpChannel.InMemory do
   def send({datapath_id, pid}, _msg) do
     Kernel.send(pid, datapath_id)
   end
+  def send(_, _) do
+    :ok
+  end
 
   def open({:test, sup}, datapath_id, {:remote_peer, ip, port, _}, [_,
         {:version, version}]) do
@@ -28,6 +31,14 @@ defmodule SdnEpc.OfpChannel.InMemory do
   end
   def open(_, _, _, _) do
     {:ok, nil}
+  end
+end
+
+defmodule SdnEpc.TestHelper do
+  def calculate_receive_timeout(period) do
+    period / 2 * 1000
+    |> Float.ceil()
+    |> round()
   end
 end
 

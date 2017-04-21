@@ -37,7 +37,11 @@ config :sdn_epc,
   ofm_record: "deps/of_protocol/include/of_protocol.hrl",
   ofmb_record: "deps/of_protocol/include/ofp_v4.hrl",
   ofs_handler: :ofs_handler,
-  ofp_channel: :ofp_channel
+  ofp_channel: :ofp_channel,
+  pic_count_duration: 10,
+  pic_msgs_limit: 10,
+  pic_drop_duration: 10,
+  pm_sw_mode_timeout: 3000
 
 config :of_driver,
   listen_ip: {0,0,0,0},

@@ -78,12 +78,19 @@ defmodule SdnEpc.Forwarder do
   end
 
   @doc """
-  Change Forwarder mode of working. Possible options are :forwarding (default)
-  and :blocking.
+  Change Forwarder mode of working to :forwarding.
   """
-  @spec switch_mode(mode :: atom()) :: term()
-  def switch_mode(mode) do
-    GenServer.call(__MODULE__, {:switch_mode, mode})
+  @spec forward() :: term()
+  def forward() do
+    GenServer.call(__MODULE__, {:switch_mode, :forwarding})
+  end
+
+  @doc """
+  Change Forwarder mode of working to :blocking.
+  """
+  @spec block() :: term()
+  def block() do
+    GenServer.call(__MODULE__, {:switch_mode, :blocking})
   end
 
   # Server Callbacks
@@ -118,7 +125,7 @@ defmodule SdnEpc.Forwarder do
     Logger.debug("Message send to controller")
     {:noreply, state}
   end
-  def handle_cast({:send_msg_to_controller, _switch_id, _msg},
+  def handle_cast({:send_msg_to_controller, _switch_id, msg},
     state = %{mode: :blocking}) do
     Logger.debug("Message dropped")
     {:noreply, state}

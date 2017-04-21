@@ -17,8 +17,8 @@ defmodule SdnEpcTest do
     assert Process.whereis(SdnEpc.OfpcsSup)
   end
 
-  test "is SdnEpc.PolicymakerStash started" do
+  test "is SdnEpc.Policymaker started" do
     {:ok, _} = Application.ensure_all_started(:sdn_epc)
-    assert Process.whereis(SdnEpc.PolicymakerStash)
+    assert Process.whereis(SdnEpc.Policymaker)
   end
 end

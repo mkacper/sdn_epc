@@ -3,12 +3,13 @@ defmodule SdnEpc.Forwarder do
   use GenServer
   @ofs_handler Application.get_env(:sdn_epc, :ofs_handler)
   @ofp_channel Application.get_env(:sdn_epc, :ofp_channel)
+  @switch_mode_timeout Application.get_env(:sdn_epc, :pm_sw_mode_timeout)
   @moduledoc """
   Provides functionalities to send/receive OpenFlow messages to/from SDN switch
   and controller.
   """
 
-  defstruct datapath_id: '', mode: :forwarding
+  defstruct(datapath_id: '', mode: :forwarding)
 
   # Client API
 
@@ -82,7 +83,7 @@ defmodule SdnEpc.Forwarder do
   """
   @spec forward() :: term()
   def forward() do
-    GenServer.call(__MODULE__, {:switch_mode, :forwarding})
+    GenServer.call(__MODULE__, {:switch_mode, :forwarding}, @switch_mode_timeout)
   end
 
   @doc """
@@ -90,13 +91,13 @@ defmodule SdnEpc.Forwarder do
   """
   @spec block() :: term()
   def block() do
-    GenServer.call(__MODULE__, {:switch_mode, :blocking})
+    GenServer.call(__MODULE__, {:switch_mode, :blocking}, @switch_mode_timeout)
   end
 
   # Server Callbacks
 
   def init(:ok) do
-    {:ok, %SdnEpc.Forwarder{}}
+    {:ok, %__MODULE__{}}
   end
 
   def handle_call({:open_of_channel, args}, _from, state) do
@@ -120,6 +121,7 @@ defmodule SdnEpc.Forwarder do
   end
   def handle_cast({:send_msg_to_controller, switch_id, msg},
     state = %{mode: :forwarding}) do
+    SdnEpc.Policymaker.update_msgs_stats(msg)
     msg_converted = SdnEpc.Converter.convert(msg)
     @ofp_channel.send(switch_id, msg_converted)
     Logger.debug("Message send to controller")
@@ -127,6 +129,7 @@ defmodule SdnEpc.Forwarder do
   end
   def handle_cast({:send_msg_to_controller, _switch_id, msg},
     state = %{mode: :blocking}) do
+    SdnEpc.Policymaker.update_msgs_stats(msg)
     Logger.debug("Message dropped")
     {:noreply, state}
   end
@@ -135,9 +138,6 @@ defmodule SdnEpc.Forwarder do
     state = %{datapath_id: datapath_id}) do
     @ofs_handler.send(datapath_id, msg)
     Logger.debug("Message send to switch")
-    {:noreply, state}
-  end
-  def handle_info(_, state) do
     {:noreply, state}
   end
 end

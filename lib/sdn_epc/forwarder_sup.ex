@@ -1,11 +1,11 @@
-defmodule SdnEpc.Supervisor do
+defmodule SdnEpc.ForwarderSup do
   use Supervisor
   @moduledoc """
-  The main application's supervisor module.
+  Supervisor module for OpenFlow channels.
   """
 
   @doc """
-  Starts main supervisor.
+  Starts OpenFlow channel supervisor.
   """
   @spec start_link() :: Supervisor.on_start()
   def start_link() do
@@ -14,9 +14,8 @@ defmodule SdnEpc.Supervisor do
 
   def init([]) do
     children = [
-      supervisor(SdnEpc.ForwarderSup, []),
-      supervisor(SdnEpc.OfpcsSup, [])
+      worker(SdnEpc.Forwarder, [], restart: :transient)
     ]
-    supervise(children, strategy: :one_for_one)
+    supervise(children, strategy: :simple_one_for_one)
   end
 end

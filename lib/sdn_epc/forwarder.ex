@@ -25,7 +25,9 @@ defmodule SdnEpc.Forwarder do
 
   ## Example
 
-      iex> SdnEpc.Forwarder.save_datapath_id('00:00:00:00:00:00:00:01')
+      iex> Supervisor.start_child(SdnEpc.ForwarderSup, [:forwarder])
+      iex> SdnEpc.Forwarder.save_datapath_id(:forwarder,
+      ...> '00:00:00:00:00:00:00:01')
       :ok
   """
   @spec save_datapath_id(forwarder :: atom(), id :: charlist()) :: term()
@@ -38,8 +40,9 @@ defmodule SdnEpc.Forwarder do
 
   ## Example
 
-      iex> SdnEpc.Forwarder.subscribe_messages_from_switch(
-      ...> '00:00:00:00:00:00:00:01', [:packet_in])
+      iex> Supervisor.start_child(SdnEpc.ForwarderSup, [:forwarder])
+      iex> SdnEpc.Forwarder.subscribe_messages_from_switch(:forwarder,
+      ...> [:packet_in])
       :ok
   """
   @spec subscribe_messages_from_switch(forwarder :: atom(),
@@ -55,8 +58,10 @@ defmodule SdnEpc.Forwarder do
   ## Example
 
       iex> {:ok, pid} = Supervisor.start_child(SdnEpc.OfpcsSup, [1])
-      iex> SdnEpc.Forwarder.open_ofp_channel(pid, "1", {192, 168, 0, 1},
-      ...> 6653, 4)
+      iex> Supervisor.start_child(SdnEpc.ForwarderSup,
+      ...> [:forwarder])
+      iex> SdnEpc.Forwarder.open_ofp_channel(:forwarder, pid, "1",
+      ...> {192, 168, 0, 1}, 6653, 4)
       :ok
   """
   @spec open_ofp_channel(forwarder :: atom(), sup :: pid(), id :: binary(),

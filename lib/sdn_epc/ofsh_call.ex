@@ -32,7 +32,7 @@ defmodule SdnEpc.OfshCall do
   end
 
   defp convert_mac_addr_to_int(mac) do
-    mac |> List.to_string() |> String.replace(":", "") |> String.to_integer()
+    mac |> List.to_string() |> String.replace(":", "") |> String.to_integer(16)
   end
 
   defp open_ofp_channel(forwarder, ofpc_sup) do

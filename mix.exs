@@ -38,6 +38,7 @@ defmodule SdnEpc.Mixfile do
     [
       {:ofs_handler,
        git: "https://github.com/FlowForwarding/ofs_handler", branch: "master"},
+      {:pkt, "~> 0.4.5"},
       {:ex_doc, "~> 0.15.0"},
       {:excoveralls, "~> 0.6", only: :test},
       {:inch_ex, "~>0.5.6", only: :dev}

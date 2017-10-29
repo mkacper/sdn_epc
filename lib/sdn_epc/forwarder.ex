@@ -105,6 +105,7 @@ defmodule SdnEpc.Forwarder do
     {:noreply, state}
   end
   def handle_cast({:send_msg_to_controller, switch_id, msg}, state) do
+    SdnEpc.Policymaker.update(msg)
     msg_converted = SdnEpc.Converter.convert(msg)
     @ofp_channel.send(switch_id, msg_converted)
     Logger.debug("Message send to controller")

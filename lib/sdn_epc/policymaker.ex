@@ -3,6 +3,7 @@ defmodule SdnEpc.Policymaker do
   use GenServer
   @window_size Application.get_env(:sdn_epc, :window_size)
   @treshold Application.get_env(:sdn_epc, :treshold)
+  @ipv4_ether_type <<8, 0>>
   @moduledoc """
   The modules is resposible for DDoS policy. It caluclates randomness
   of the incoming packets (entropy) based on it's destatination addresses.
@@ -61,18 +62,19 @@ defmodule SdnEpc.Policymaker do
 
   defp get_dst_ip(data) do
     data
-    |> :pkt.decode
     |> get_ipv4_header
     |> get_ipv4_dst_addr
   end
 
-  defp get_ipv4_header({:ok, {headers, _}}) do
-    headers
-    |> List.keyfind(:ipv4, 0)
-  end
+  defp get_ipv4_header(<<_no_matter_fields::binary-size(12), @ipv4_ether_type,
+    payload::binary>>), do: payload
+  defp get_ipv4_header(_), do: nil
 
   defp get_ipv4_dst_addr(nil), do: nil
-  defp get_ipv4_dst_addr(ipv4), do: elem(ipv4, 12)
+  defp get_ipv4_dst_addr(<<_no_matter_fields::binary-size(16), dst1::integer,
+    dst2::integer, dst3::integer, dst4::integer, _rest::binary>>) do
+    {dst1, dst2, dst3, dst4}
+  end
 
   defp inc_ip(nil), do: false
   defp inc_ip(addr) do
@@ -115,7 +117,7 @@ defmodule SdnEpc.Policymaker do
   end
 
   defp check_tresholds(tresholds) when length(tresholds) < 5 do
-    {:true, tresholds}
+    {true, tresholds}
   end
   defp check_tresholds(tresholds) do
     {Enum.all?(tresholds, &(&1 > @treshold)), []}

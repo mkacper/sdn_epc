@@ -3,7 +3,7 @@ defmodule SdnEpc.Policymaker do
   use GenServer
   @window_size Application.get_env(:sdn_epc, :window_size)
   @treshold Application.get_env(:sdn_epc, :treshold)
-  @ipv4_ether_type <<8, 0>>
+  @ipv4_ether_type 0x0800
   @moduledoc """
   The modules is resposible for DDoS policy. It caluclates randomness
   of the incoming packets (entropy) based on it's destatination addresses.
@@ -66,9 +66,9 @@ defmodule SdnEpc.Policymaker do
     |> get_ipv4_dst_addr
   end
 
-  defp get_ipv4_header(<<_no_matter_fields::binary-size(12), @ipv4_ether_type,
-    payload::binary>>), do: payload
-  defp get_ipv4_header(_), do: nil
+  def get_ipv4_header(<<_no_matter_fields::binary-size(12),
+    <<@ipv4_ether_type::size(16)>>, payload::binary>>), do: payload
+  def get_ipv4_header(_), do: nil
 
   defp get_ipv4_dst_addr(nil), do: nil
   defp get_ipv4_dst_addr(<<_no_matter_fields::binary-size(16), dst1::integer,

@@ -87,13 +87,11 @@ defmodule SdnEpc.KeyValStore do
   defp dump_and_clear_store(name) do
     catch_all_spec = [{:"_",[],[:"$_"]}]
     f = fn() ->
-      select = :mnesia.select(name, catch_all_spec)
-      for key <- :mnesia.all_keys(name) do
-        :mnesia.delete(name, key, :sticky_write)
-      end
-      select
+      :mnesia.select(name, catch_all_spec)
     end
-    :mnesia.activity(:sync_transaction, f)
+    select = :mnesia.activity(:sync_transaction, f)
+    :mnesia.clear_table(name)
+    select
   end
 
 end

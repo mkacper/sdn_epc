@@ -60,12 +60,13 @@ defmodule SdnEpc.Policymaker do
 
   defp handle_packet_in(current_window_size) when
     current_window_size > @window_size - 1 do
+    update_packets_stats()
     treshold =
       get_window()
       |> get_treshold
     tresholds = get_tresholds()
     {policy, new_tresholds} = check_tresholds([treshold | tresholds])
-    update_tresholds_and_packets(new_tresholds)
+    update_tresholds(new_tresholds)
     introduce_policy(policy)
     treshold # for stats
   end
@@ -175,8 +176,11 @@ defmodule SdnEpc.Policymaker do
     {Enum.all?(tresholds, &(&1 > @treshold)), []}
   end
 
-  defp update_tresholds_and_packets(tresholds) do
+  defp update_packets_stats() do
     SdnEpc.KeyValStore.write(@mnesia_stat_store, {:packets, 0})
+  end
+
+  defp update_tresholds(tresholds) do
     SdnEpc.KeyValStore.write(@mnesia_stat_store, {:tresholds, tresholds})
   end
 

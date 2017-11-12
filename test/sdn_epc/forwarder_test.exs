@@ -1,29 +1,22 @@
 defmodule SdnEpc.ForwarderTest do
   use ExUnit.Case, async: true
 
+  setup_all do
+    Supervisor.start_child(SdnEpc.ForwarderSup, [:forwarder_test])
+    :ok
+  end
+
   test "save datapath id" do
     # GIVEN
     datapath_id = '00:00:00:00:00:00:00:01'
     msg = "hello_world"
 
     # WHEN
-    SdnEpc.Forwarder.save_datapath_id(datapath_id)
-    send(SdnEpc.Forwarder, {:ofp_message, self(), {:test, self(), msg}})
+    SdnEpc.Forwarder.save_datapath_id(:forwarder_test, datapath_id)
+    send(:forwarder_test, {:ofp_message, self(), {:test, self(), msg}})
 
     # THEN
     assert_receive({^datapath_id, ^msg})
-  end
-
-  test "subscribe messages from switch" do
-    # GIVEN
-    datapath_id = '00:00:00:00:00:00:00:01'
-    types = [:hello, :world]
-
-    # WHEN
-    SdnEpc.Forwarder.subscribe_messages_from_switch({datapath_id, self()}, types)
-
-    # THEN
-    for type <- types, do: assert_receive({^datapath_id, ^type})
   end
 
   test "send message to controller" do
@@ -32,7 +25,8 @@ defmodule SdnEpc.ForwarderTest do
     msg = OfpMessage.get(:packet_in)
 
     # WHEN
-    SdnEpc.Forwarder.send_msg_to_controller({datapath_id, self()}, msg)
+    SdnEpc.Forwarder.send_msg_to_controller(:forwarder_test,
+      {datapath_id, self()}, msg)
     # THEN
     assert_receive(^datapath_id)
   end
@@ -47,7 +41,8 @@ defmodule SdnEpc.ForwarderTest do
     version = 0
 
     # WHEN
-    SdnEpc.Forwarder.open_ofp_channel(sup, datapath_id, ip, port, version)
+    SdnEpc.Forwarder.open_ofp_channel(:forwarder_test, sup, datapath_id, ip,
+      port, version)
 
     # THEN
     assert_receive({^me, ^datapath_id, ^ip, ^port, ^version})

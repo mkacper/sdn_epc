@@ -7,9 +7,9 @@ defmodule SdnEpcTest do
     assert Process.whereis(SdnEpc.Supervisor)
   end
 
-  test "is SdnEpc.Forwarder started" do
+  test "is SdnEpc.ForwarderSup started" do
     {:ok, _} = Application.ensure_all_started(:sdn_epc)
-    assert Process.whereis(SdnEpc.Forwarder)
+    assert Process.whereis(SdnEpc.ForwarderSup)
   end
 
   test "is SdnEpc.OfpcsSup started" do

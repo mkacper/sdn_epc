@@ -37,7 +37,11 @@ config :sdn_epc,
   ofm_record: "deps/of_protocol/include/of_protocol.hrl",
   ofmb_record: "deps/of_protocol/include/ofp_v4.hrl",
   ofs_handler: :ofs_handler,
-  ofp_channel: :ofp_channel
+  ofp_channel: :ofp_channel,
+  window_size: 50,
+  treshold: 1.31,
+  mnesia_packet_store: :packet,
+  mnesia_stat_store: :stat
 
 config :of_driver,
   listen_ip: {0,0,0,0},

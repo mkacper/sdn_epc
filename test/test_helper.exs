@@ -1,9 +1,6 @@
 ExUnit.start()
 
 defmodule SdnEpc.OfsHandler.InMemory do
-  def subscribe({datapath_id, pid}, _callback_module, type) do
-    Kernel.send(pid, {datapath_id, type})
-  end
   def subscribe(_, _, _) do
     :ok
   end

@@ -14,8 +14,9 @@ defmodule SdnEpc.Supervisor do
 
   def init([]) do
     children = [
-      worker(SdnEpc.Forwarder, []),
-      supervisor(SdnEpc.OfpcsSup, [])
+      supervisor(SdnEpc.ForwarderSup, []),
+      supervisor(SdnEpc.OfpcsSup, []),
+      worker(SdnEpc.Policymaker, [])
     ]
     supervise(children, strategy: :one_for_one)
   end

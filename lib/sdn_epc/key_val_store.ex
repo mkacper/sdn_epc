@@ -36,6 +36,28 @@ defmodule SdnEpc.KeyValStore do
     dump_and_clear_store(name)
   end
 
+  def read_query(name, key) do
+    :mnesia.read(name, key)
+  end
+
+  def write_query(name, {key, val}) do
+    record = record(key: key, val: val)
+    :mnesia.write(name, record, :write)
+  end
+
+  def get_all_table_query(name) do
+    catch_all_spec = [{:"_",[],[:"$_"]}]
+    :mnesia.select(name, catch_all_spec)
+  end
+
+  def clear_table_query(name) do
+    for k <- :mnesia.all_keys(name), do: :mnesia.delete({name, k})
+  end
+
+  def run_sync_transaction(f) do
+    :mnesia.activity(:sync_transaction, f)
+  end
+
   ## Helpers
 
   defp configure_cluster_nodes() do
